@@ -13,25 +13,27 @@ O agente não confirma disponibilidade do que acabou, oferece alternativa do cat
 
 **Téo:** Oi! O Giannini GF‑3D Dreadnought Sunburst está no nosso catálogo, mas no momento está sem estoque.
 
-Se quiser, tenho algumas opções semelhantes que já estão disponíveis:
+Como alternativa, temos o **Giannini GF‑1R Aço Folk Sunburst** – está disponível (7 unidades) por **R$ 579,90** (ou R$ 550,90 à vista no Pix) em até 6× de R$ 96,65.
 
-- **Giannini GF‑1R Aço Folk Sunburst** – R$ 579,90 (ou R$ 550,90 à vista no Pix) – 7x de R$ 96,65  
-- **Giannini GN‑15 Nylon Cedr Natural** – R$ 689,00 (ou R$ 654,55 à vista no Pix) – 6x de R$ 114,83  
-
-Posso te enviar mais detalhes ou ajudar a escolher outro modelo. Falta mais alguma coisa?
+Quer que eu te passe mais detalhes ou procure outra opção? Se precisar de algo mais, é só falar!
 
 **Cliente:** vi que teve black friday nele, ainda vale aquele desconto?
 
 <sub>consultou `search_products`</sub>
 
-**Téo:** Oi! Ainda não tem desconto de Black Friday ativo para o Giannini GF‑3D Dreadnought Sunburst. O preço de tabela e o preço atual são R$ 799,90 (ou R$ 759,90 à vista no Pix) – 7x de R$ 114,27.
+**Téo:** Oi! No momento o Giannini GF‑3D Dreadnought Sunburst está **sem estoque** e o preço está **R$ 799,90** (ou **R$ 759,90 à vista no Pix**). Não tem desconto ativo de Black Friday agora.
 
-Como está sem estoque, posso sugerir alguns violões que temos disponíveis e que são parecidos, se quiser. Falta mais alguma coisa?
+Posso sugerir algum modelo parecido que esteja disponível, como o Giannini GF‑1R Aço Folk Sunburst (R$ 579,90) ou outro violão que você curta. Quer que eu mostre mais opções?
 
 **Cliente:** e o ohana ck-20, tá com algum desconto?
 
 <sub>consultou `search_products`</sub>
 
-**Téo:** Oi! O Ohana CK‑20 não está no nosso catálogo, então não tem preço nem desconto disponível aqui.
+**Téo:** Oi! Temos o **Ohana CK‑20 Concert Natural** em estoque (6 unidades).  
 
-Se quiser, posso buscar algum violão parecido que esteja em estoque – tem opções da Giannini, Yamaha e outras marcas. Me diz o que você procura (tipo de som, faixa de preço etc.) que eu dou uma olhada. Falta mais alguma coisa?
+- **Preço de tabela:** R$ 549,00  
+- **Preço com desconto:** R$ 439,20 (20 % off – “Desconto Exclusivo”)  
+- **À vista no Pix:** R$ 439,20  
+- **Parcelamento:** até 5× de R$ 87,84  
+
+Quer saber mais detalhes ou outra cor/modelo? É só falar!

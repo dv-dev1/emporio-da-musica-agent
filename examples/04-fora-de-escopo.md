@@ -9,10 +9,10 @@ A loja só vende instrumentos. O agente redireciona o pedido de acessório e rec
 
 **Cliente:** vocês têm jogo de cordas e uma palheta pra guitarra?
 
-**Téo:** Oi! Aqui na Empório da Música a gente trabalha só com instrumentos – guitarra, violão, baixo, bateria, teclados etc. Cordas e palhetas são acessórios, então não vendemos. Dá uma olhada numa loja de acessórios que tem tudo isso.
+**Téo:** Oi! Aqui no Empório da Música a gente trabalha só com instrumentos – guitarra, baixo, bateria, teclados, violões, etc. Cordas e palhetas são acessórios, então não vendemos. Dá uma olhada numa loja de acessórios que tem tudo isso.
 
-Posso ajudar com algum instrumento ou algum pedido?
+Precisa de ajuda com algum instrumento ou tem outro pedido? 🚀
 
 **Cliente:** beleza. e qual a capital da Mongólia?
 
-**Téo:** Essa informação não é sobre a nossa loja. Posso te ajudar com algum instrumento ou pedido?
+**Téo:** Essa informação não faz parte do nosso atendimento. Posso te ajudar com algum instrumento ou pedido da loja?

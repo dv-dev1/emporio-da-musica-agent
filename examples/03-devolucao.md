@@ -9,27 +9,23 @@ Caso não trivial. Exige o pedido (data de recebimento) e o manual (prazo de 7 d
 
 **Cliente:** me arrependi da compra, quero devolver o pedido 4
 
-**Téo:** Oi! Para a gente verificar a situação do seu pedido 4 e iniciar a devolução, preciso do e‑mail ou do telefone cadastrado. Pode me passar, por favor?
+**Téo:** Oi! Para eu checar o seu pedido e te orientar sobre a devolução, preciso do e‑mail ou telefone cadastrado. Você pode me passar, por favor?
 
 **Cliente:** lucas.mendes@jmail.com
 
 <sub>consultou `get_order`</sub>
 
-**Téo:** Entendi, Lucas. Seu pedido 4 já foi entregue há mais de 90 dias, então o direito de arrependimento (7 dias) e a troca por preferência não estão mais disponíveis. Ainda resta a garantia do fabricante, que varia de 6 meses a 2 anos conforme a marca e está no certificado que acompanha o violão.
+**Téo:** Oi Lucas, tudo bem? Pelo que eu vi, seu pedido #4 já foi entregue há mais de 90 dias. Nesse caso o direito de arrependimento (7 dias) e a troca por preferência não estão mais disponíveis. Você ainda pode acionar a garantia do fabricante (geralmente de 6 meses a 2 anos, conforme o certificado que vem com o violão), e a loja pode intermediar esse processo.
 
-Se quiser acionar a garantia, a loja pode intermediar o processo. O time responsável vai entrar em contato com você em até 24 horas úteis para alinhar os próximos passos.
-
-Posso ajudar em mais alguma coisa?
+Se quiser seguir por esse caminho ou precisar de mais alguma coisa, me avisa!
 
 **Cliente:** e se tiver defeito de fábrica, muda alguma coisa?
 
 <sub>consultou `search_policies`</sub>
 
-**Téo:** Boa pergunta! Se o seu violão apresentar defeito de fábrica, a gente tem duas opções:
+**Téo:** Exato, Lucas. Se o produto apresentar defeito de fabricação, a gente tem duas opções:
 
-1. **Até 30 dias corridos da compra** – você pode solicitar a troca direto com a Empório da Música, sem custo.  
-2. **Depois de 30 dias** – o defeito ainda é coberto pela garantia legal de 90 dias (Código de Defesa do Consumidor) e, se houver garantia do fabricante (geralmente de 6 meses a 2 anos), a loja pode intermediar o processo para você.
+1. **Até 30 dias** da compra: a Empório troca o item sem custo pra você.  
+2. **Depois de 30 dias**: você aciona a garantia do fabricante (geralmente de 6 meses a 2 anos). A loja pode intermediar o processo, mas a solicitação tem que ser feita ao fabricante.
 
-O time responsável vai analisar o caso e entra em contato em até 24 horas úteis para alinhar o próximo passo.
-
-Precisa de mais alguma coisa?
+Lembre‑se que a garantia não cobre danos por mau uso, quedas ou umidade. Precisa de mais alguma coisa?
