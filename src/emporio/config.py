@@ -1,5 +1,5 @@
 import os
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -33,3 +33,14 @@ def today() -> date:
     """
     override = os.getenv("EMPORIO_TODAY")
     return date.fromisoformat(override) if override else date.today()
+
+
+def now() -> datetime:
+    """Wall clock, on the reference date.
+
+    "Está aberto agora?" needs the hour, which no dataset carries, so the time
+    of day is always the real one. Only the date is pinned, otherwise a run with
+    EMPORIO_TODAY set to a Sunday would still report the store open.
+    """
+    clock = datetime.now()
+    return clock.replace(year=today().year, month=today().month, day=today().day)

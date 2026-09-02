@@ -105,6 +105,19 @@ def test_store_info_lists_what_the_store_does_not_sell():
     assert "pedais" in tools.store_info()["does_not_sell"]
 
 
+@pytest.mark.spec("2")
+def test_open_right_now_follows_the_pinned_date(monkeypatch):
+    """EMPORIO_TODAY has to reach store_info, or "open now" answers a different day.
+
+    Order deadlines read the pinned date and this one used to read the wall
+    clock, so a run pinned to a Sunday still reported the store open.
+    """
+    monkeypatch.setenv("EMPORIO_TODAY", "2026-03-22")
+    assert tools.store_info()["right_now"]["reason"] == "domingo"
+    monkeypatch.setenv("EMPORIO_TODAY", "2026-03-25")
+    assert tools.store_info()["right_now"]["open"] in {True, False}
+
+
 def test_unknown_tool_does_not_raise():
     assert "error" in tools.call("consultar_horoscopo", {})
 

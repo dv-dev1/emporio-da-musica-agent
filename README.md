@@ -37,7 +37,7 @@ PYTHONPATH=src python -m emporio.cli --ask "que horas abre no sábado?"
 
 streamlit run app.py                                      # browser chat
 
-pytest                                                    # 111 tests, no API key
+pytest                                                    # 112 tests, no API key
 pytest -m spec                                            # only the policy clauses
 python scripts/spec_matrix.py                             # regenerates SPEC.md
 ```
@@ -49,6 +49,10 @@ reference date:
 ```bash
 EMPORIO_TODAY=2026-03-25 PYTHONPATH=src python -m emporio.cli
 ```
+
+It pins the date everywhere, `store_info` included: with a Sunday pinned, the
+store reports itself closed. Only the time of day stays real, because no dataset
+carries an hour and *"are you open now?"* needs one.
 
 ## What it does
 

@@ -8,7 +8,7 @@ import json
 import re
 import sqlite3
 from contextlib import contextmanager
-from datetime import date, datetime
+from datetime import date
 
 from . import config, etl, policies, rules
 
@@ -278,7 +278,7 @@ def search_policies(question: str) -> dict:
 
 
 def store_info() -> dict:
-    now = datetime.now()
+    now = config.now()
     return {
         "name": config.STORE_NAME,
         "address": config.STORE_ADDRESS,

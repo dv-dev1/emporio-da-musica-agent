@@ -11,7 +11,7 @@ test. Run `pytest -m spec` to execute only these.
 | Clause | Requirement | Enforced in | Tests |
 |---|---|---|---|
 | §1 Sobre a Empório da Música | A loja vende apenas instrumentos musicais e não comercializa acessórios como cordas, palhetas, cabos, cases, pedais ou amplificadores. | `tools.store_info, prompts.SYSTEM_PROMPT` | `test_store_info_lists_what_the_store_does_not_sell` |
-| §2 Horário de Funcionamento | Segunda a sexta das 09:00 às 18:00, sábado das 09:00 às 13:00, domingo e feriados fechado. | `rules.store_status` | `test_store_closes_early_on_saturday`, `test_store_is_closed_on_sunday` |
+| §2 Horário de Funcionamento | Segunda a sexta das 09:00 às 18:00, sábado das 09:00 às 13:00, domingo e feriados fechado. | `rules.store_status` | `test_open_right_now_follows_the_pinned_date`, `test_store_closes_early_on_saturday`, `test_store_is_closed_on_sunday` |
 | §3 Formas de Pagamento | PIX à vista com 5% de desconto sobre o preço de tabela; débito e boleto à vista; boleto compensa em até 3 dias úteis. | `rules.payment_options` | `test_pix_discount_applies_to_a_product_without_promotion` |
 | §3.1 Regras de Parcelamento | Até 3x sem parcela mínima acima de R$50; de 4x a 6x parcela mínima de R$80; de 7x a 12x parcela mínima de R$100; combinação de formas de pagamento acima de R$2.000. | `rules.max_installments, rules.payment_options` | `test_a_listing_already_answers_how_many_installments`, `test_combined_payment_only_above_two_thousand`, `test_installment_bands` |
 | §4.1 Direito de Arrependimento | Devolução em até 7 dias corridos após o recebimento, sem justificativa, com frete de devolução por conta da loja. | `rules.assess_return` | `test_pending_order_can_still_be_cancelled`, `test_regret_window_open_right_after_delivery` |
