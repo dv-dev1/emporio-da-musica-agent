@@ -37,7 +37,7 @@ PYTHONPATH=src python -m emporio.cli --ask "que horas abre no sábado?"
 
 streamlit run app.py                                      # browser chat
 
-pytest                                                    # 112 tests, no API key
+pytest                                                    # 113 tests, no API key
 pytest -m spec                                            # only the policy clauses
 python scripts/spec_matrix.py                             # regenerates SPEC.md
 python scripts/validate.py                                # sweeps the data, no key
