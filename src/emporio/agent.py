@@ -87,8 +87,15 @@ class Agent:
 
 
 def _decode(raw: str) -> dict:
+    """Tool arguments, with the junk keys dropped.
+
+    For a tool that takes no arguments the model tends to emit {"": {}} rather
+    than {}. Passing that through costs a failed call and a wasted round trip.
+    """
     try:
         arguments = json.loads(raw or "{}")
     except json.JSONDecodeError:
         return {}
-    return arguments if isinstance(arguments, dict) else {}
+    if not isinstance(arguments, dict):
+        return {}
+    return {key: value for key, value in arguments.items() if key.isidentifier()}

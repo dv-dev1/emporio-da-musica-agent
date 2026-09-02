@@ -12,7 +12,7 @@ DB_PATH = DATA_DIR / "emporio.db"
 POLICY_PDF = DATA_DIR / "politicas_da_loja.pdf"
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 
 MAX_TOOL_ROUNDS = 6
 HISTORY_TURNS = 12
