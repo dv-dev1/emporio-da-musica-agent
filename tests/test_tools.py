@@ -1,0 +1,75 @@
+from emporio import tools
+
+
+def test_price_filter_respects_the_promotional_price():
+    found = tools.search_products(query="ukulele", max_price=450, limit=8)
+    names = [product["name"] for product in found["products"]]
+    assert "Ohana CK-20 Concert Natural" in names  # 549.00 com 20% off = 439.20
+
+
+def test_listings_stay_lean_and_details_carry_the_payment_options():
+    listing = tools.search_products(query="violão", max_price=1000)
+    assert "payment" not in listing["products"][0]
+    assert "payment" in tools.get_product(listing["products"][0]["product_id"])
+
+
+def test_search_never_returns_anything_out_of_stock_by_default():
+    found = tools.search_products(query="", limit=8)
+    assert all(product["in_stock"] for product in found["products"])
+
+
+def test_an_empty_result_says_so_instead_of_inviting_a_guess():
+    found = tools.search_products(query="saxofone")
+    assert found["count"] == 0
+    assert "note" in found
+
+
+def test_unknown_product_is_an_error_not_an_empty_shell():
+    assert "error" in tools.get_product(9999)
+
+
+def test_products_the_store_cannot_sell_carry_a_warning():
+    # 96 ran out of stock, 113 was discontinued, 130 has not launched yet.
+    for product_id in (96, 113, 130):
+        assert "availability_note" in tools.get_product(product_id)
+
+
+def test_those_products_never_show_up_in_a_normal_search():
+    listing = tools.search_products(query="", only_in_stock=True, limit=8)
+    assert all(product["status"] == "active" for product in listing["products"])
+    assert all(product["stock_quantity"] > 0 for product in listing["products"])
+
+
+def test_order_requires_a_matching_contact():
+    assert tools.get_order(4, "quemquerseja@gmail.com")["error"] == "não confere"
+    assert "status" in tools.get_order(4, "lucas.mendes@jmail.com")
+
+
+def test_phone_matching_ignores_formatting():
+    assert "status" in tools.get_order(4, "67998123456")
+
+
+def test_order_answer_carries_the_return_assessment():
+    order = tools.get_order(4, "lucas.mendes@jmail.com")
+    assert order["return_options"]["available_paths"] == []
+
+
+def test_missing_order_is_reported():
+    assert "error" in tools.get_order(9999, "lucas.mendes@jmail.com")
+
+
+def test_policy_search_returns_sections():
+    matches = tools.search_policies("posso trocar se não gostei?")["matches"]
+    assert matches and matches[0]["section"].startswith("4")
+
+
+def test_store_info_lists_what_the_store_does_not_sell():
+    assert "pedais" in tools.store_info()["does_not_sell"]
+
+
+def test_unknown_tool_does_not_raise():
+    assert "error" in tools.call("consultar_horoscopo", {})
+
+
+def test_bad_arguments_do_not_raise():
+    assert "error" in tools.call("get_product", {"nome": "violão"})
