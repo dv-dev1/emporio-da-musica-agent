@@ -7,7 +7,6 @@ index to keep in sync.
 """
 
 import re
-import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -16,18 +15,12 @@ from pypdf import PdfReader
 from rank_bm25 import BM25Okapi
 
 from . import config
+from .text import stem
 
 HEADING = re.compile(r"^(\d{1,2})(?:\.(\d{1,2}))?\.?\s+([A-ZÀ-Ú].{2,70})$")
 RUNNING_HEADER = re.compile(
     r"^(Empório da Música Manual de Políticas e Procedimentos|Página \d+)$"
 )
-
-STOPWORDS = {
-    "a", "à", "ao", "aos", "as", "às", "com", "como", "da", "das", "de", "do",
-    "dos", "e", "em", "na", "nas", "no", "nos", "o", "os", "ou", "para", "pela",
-    "pelo", "por", "que", "se", "sem", "ser", "sobre", "um", "uma", "eu", "meu",
-    "minha", "posso", "quero", "qual", "quais", "quanto", "tem", "voces", "loja",
-}
 
 
 @dataclass
@@ -46,23 +39,6 @@ class Section:
     @property
     def indexed_text(self) -> str:
         return f"{self.parent} {self.title} {self.title} {self.text}"
-
-
-def normalize(text: str) -> str:
-    decomposed = unicodedata.normalize("NFKD", text.lower())
-    return "".join(char for char in decomposed if not unicodedata.combining(char))
-
-
-def tokenize(text: str) -> list[str]:
-    """Words reduced to a five letter prefix.
-
-    Portuguese inflects heavily and the customer never uses the wording of the
-    manual: they write "me arrependi", the manual says "arrependimento". Cutting
-    to a prefix is a blunt stemmer, but at this corpus size it buys the recall
-    that matters without pulling in a stemming dependency.
-    """
-    words = re.findall(r"[a-z0-9]+", normalize(text))
-    return [word[:5] for word in words if word not in STOPWORDS and len(word) > 1]
 
 
 def _lines(pdf_path: Path) -> list[str]:
@@ -124,10 +100,10 @@ class PolicyIndex:
         self.sections = sections
         # The title is repeated in the indexed text so a question phrased like the
         # heading ranks that section up.
-        self._bm25 = BM25Okapi([tokenize(section.indexed_text) for section in sections])
+        self._bm25 = BM25Okapi([stem(section.indexed_text) for section in sections])
 
     def search(self, question: str, limit: int = 3) -> list[dict]:
-        tokens = tokenize(question)
+        tokens = stem(question)
         if not tokens:
             return []
         scores = self._bm25.get_scores(tokens)
