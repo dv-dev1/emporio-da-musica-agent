@@ -35,8 +35,12 @@ def _digits(value: str) -> str:
 
 
 def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
-    # A listing stays lean on purpose; the payment breakdown only shows up on the
-    # single product the customer actually asked about.
+    # A listing carries the short version of the payment terms and the details
+    # carry the full breakdown. Leaving the terms out of the listing entirely
+    # invites the model to recite the policy text and work the installments out
+    # itself, which is how a R$599 guitar gets advertised at twelve payments.
+    money = rules.payment_options(row["price_brl"], row["effective_price"],
+                                  row["discount_percent"])
     product = {
         "product_id": row["product_id"],
         "name": row["name"],
@@ -46,6 +50,9 @@ def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
         "in_stock": row["stock_quantity"] > 0,
         "stock_quantity": row["stock_quantity"],
         "status": row["status"],
+        "pix_price_brl": money["pix"]["total"],
+        "max_installments": money["credit"]["max_installments"],
+        "installment_brl": money["credit"]["installment_value"],
     }
     if row["discount_percent"]:
         product["promotion"] = {
@@ -53,9 +60,7 @@ def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
             "discount_percent": row["discount_percent"],
         }
     if with_payment:
-        product["payment"] = rules.payment_options(
-            row["price_brl"], row["effective_price"], row["discount_percent"]
-        )
+        product["payment"] = money
     return product
 
 
@@ -239,7 +244,9 @@ SCHEMAS = [
                     "query": {
                         "type": "string",
                         "description": "Termos do produto: tipo, marca ou modelo. "
-                                       "Não coloque valores em reais aqui.",
+                                       "Não coloque valores em reais aqui. Monte a "
+                                       "busca só com o que o cliente pediu agora; "
+                                       "não repita filtros de perguntas anteriores.",
                     },
                     "category": {
                         "type": "string",

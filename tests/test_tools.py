@@ -7,10 +7,22 @@ def test_price_filter_respects_the_promotional_price():
     assert "Ohana CK-20 Concert Natural" in names  # 549.00 com 20% off = 439.20
 
 
-def test_listings_stay_lean_and_details_carry_the_payment_options():
-    listing = tools.search_products(query="violão", max_price=1000)
-    assert "payment" not in listing["products"][0]
-    assert "payment" in tools.get_product(listing["products"][0]["product_id"])
+def test_a_listing_already_answers_how_many_installments():
+    # Without this the model recites the manual's 12x ceiling at a guitar whose
+    # price only supports six.
+    guitar = next(
+        product
+        for product in tools.search_products(query="violão", max_price=1000, limit=8)["products"]
+        if product["name"].startswith("Yamaha C40")
+    )
+    assert guitar["max_installments"] == 6
+    assert guitar["installment_brl"] == 99.98
+
+
+def test_details_add_the_full_payment_breakdown():
+    listing = tools.search_products(query="violão")["products"][0]
+    assert "payment" not in listing
+    assert "payment" in tools.get_product(listing["product_id"])
 
 
 def test_search_never_returns_anything_out_of_stock_by_default():
