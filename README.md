@@ -120,7 +120,7 @@ pages, or spans several documents, or when the gap between customer vocabulary
 and document vocabulary stops being morphological. At eight pages, embeddings
 would be more infrastructure for less transparency.
 
-### Model and provider: Groq, `llama-3.3-70b-versatile`
+### Model and provider: Groq, `openai/gpt-oss-120b`
 
 Chosen on three counts: a free tier that an evaluator can actually reproduce
 without a credit card, reliable native tool calling, and latency low enough for a
@@ -226,14 +226,30 @@ code, BM25 over embeddings — and used it as something to argue against. The
 prompts above ("why not embeddings", "what breaks if the model does this math")
 are the questions I put to it before committing to an answer.
 
-**Code.** Most of the implementation was generated and then reviewed. Three
-things I caught in review, as a sample of what that review is worth: the PDF
-extractor silently produced a single section because pypdf's default mode splits
-on words; the heading regex swallowed the manual from section 7.2 onward because
-a numbered list looks like a heading; and `assess_return` dropped the
-`available_paths` key when the list was empty, which is precisely the case where
-"nothing is available" is the answer the customer needs. Each of those is now a
-test.
+**Code.** Most of the implementation was generated and then reviewed, and the
+review is where the work actually was. A sample of what it caught:
+
+- The PDF extractor silently produced a single section, because pypdf's default
+  mode splits on words and destroys every heading.
+- The heading regex swallowed the manual from §7.2 onward, because a numbered
+  list looks exactly like a heading.
+- `assess_return` dropped its `available_paths` key when the list was empty —
+  precisely the case where "nothing is available" is the answer.
+
+Three more only surfaced by reading the recorded conversations, which is the
+argument for generating them rather than writing them:
+
+- Listings originally carried no payment terms, so the model went back to the
+  manual, read the 12x ceiling and offered twelve installments on a R$599 guitar
+  that supports six. The terms now come from the tool.
+- A sold-out guitar returned an empty search, and the agent told the customer the
+  store does not carry it. §7.3 asks for the opposite. Out-of-stock and
+  nonexistent are now different answers.
+- Asked for the capital of Mongolia after two friendly turns, it answered Ulan
+  Bator. The constraint was in the system prompt, four turns away; it now also
+  rides in the last position before the customer's message.
+
+Each of those is a test or a prompt change, and each is in the commit history.
 
 **Where I did not use it.** The business rules in `rules.py` I transcribed from
 the manual myself and then wrote tests against, because that is the layer where a
