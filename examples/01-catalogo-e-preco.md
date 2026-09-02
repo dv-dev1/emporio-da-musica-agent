@@ -11,10 +11,10 @@ Consulta de catálogo com filtro de valor, seguida de uma pergunta de preço em 
 
 <sub>consultou `search_products`</sub>
 
-**Téo:** Oi! Segue a lista de violões que temos em estoque até R$ 1.000,00:
+**Téo:** Oi! Segue a lista de violões que temos no estoque por até R$ 1.000,00:
 
-| Modelo | Preço (à vista) | Pix | Parcelamento |
-|--------|----------------|-----|--------------|
+| Modelo | Preço de tabela | Preço à vista (PIX) | Parcelamento |
+|--------|----------------|----------------------|--------------|
 | Tagima Memphis AC‑39 Nylon – Natural | R$ 429,90 | R$ 408,40 | até 5× de R$ 85,98 |
 | Rozini RC‑104 Nylon – Estudante | R$ 459,90 | R$ 436,90 | até 5× de R$ 91,98 |
 | Shelby SN‑100 Folk Aço – Preto | R$ 549,00 | R$ 521,55 | até 6× de R$ 91,50 |
@@ -23,12 +23,14 @@ Consulta de catálogo com filtro de valor, seguida de uma pergunta de preço em 
 | Giannini GN‑15 Nylon – Cedro Natural | R$ 689,00 | R$ 654,55 | até 6× de R$ 114,83 |
 | Yamaha F310 Aço – Natural | R$ 699,90 | R$ 664,90 | até 6× de R$ 116,65 |
 
-Todos estão disponíveis em estoque. Quer saber mais detalhes de algum modelo ou ver opções de acessórios (cordas, cases etc.)? Estou aqui pra ajudar!
+Todos estão disponíveis em estoque. Quer saber mais detalhes de algum modelo ou ver opções de pagamento? É só falar!
 
 **Cliente:** e o yamaha c40, dá pra parcelar? quanto fica cada parcela?
 
 <sub>consultou `search_products`</sub>
 
-**Téo:** Claro! O Yamaha C40 Nylon Natural está disponível e pode ser parcelado em **até 6 vezes de R$ 99,98** (valor da parcela já com o preço à vista de R$ 599,90).  
+**Téo:** Claro! O Yamaha C40 Nylon Natural está disponível por R$ 599,90 (preço de tabela) e, à vista no PIX, sai por R$ 569,90.  
 
-Precisa de mais alguma informação ou quer ver outros modelos? Estou à disposição!
+Ele pode ser parcelado em **até 6 vezes de R$ 99,98** (sem juros).  
+
+Quer saber mais alguma coisa ou ver outro modelo?

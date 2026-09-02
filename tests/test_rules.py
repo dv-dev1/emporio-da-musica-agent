@@ -82,3 +82,15 @@ def test_defect_exchange_counts_from_the_purchase_date():
 def test_pending_order_can_still_be_cancelled():
     assessment = rules.assess_return("pending", date(2026, 3, 22), date(2026, 3, 25))
     assert assessment["available_paths"] == ["cancelamento antes do envio"]
+
+
+def test_the_verdict_is_also_written_out_in_words():
+    expired = rules.assess_return(
+        "delivered", date(2025, 10, 15), date(2026, 3, 25), date(2025, 10, 25)
+    )
+    assert expired["summary"].startswith("nenhum prazo")
+
+    open_window = rules.assess_return(
+        "delivered", date(2026, 3, 20), date(2026, 3, 25), date(2026, 3, 22)
+    )
+    assert "ainda aberto: direito de arrependimento" in open_window["summary"]

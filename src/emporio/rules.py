@@ -119,6 +119,7 @@ def store_status(now: datetime) -> dict:
 @dataclass
 class ReturnAssessment:
     order_status: str
+    summary: str = ""
     available_paths: list[str] = field(default_factory=list)
     blocked_paths: list[str] = field(default_factory=list)
     days_since_purchase: int | None = None
@@ -128,8 +129,23 @@ class ReturnAssessment:
     conditions: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict:
+        # A model reading two lists will find a way to read them wrong, so the
+        # verdict is also spelled out as one sentence it can only paraphrase.
+        self.summary = self._summary()
         # An empty available_paths is an answer, so only None is dropped.
         return {key: value for key, value in self.__dict__.items() if value is not None}
+
+    def _summary(self) -> str:
+        if not self.available_paths:
+            return (
+                "nenhum prazo de troca, devolução ou garantia legal continua aberto "
+                "para este pedido; resta a garantia do próprio fabricante, cujo prazo "
+                "varia de 6 meses a 2 anos conforme a marca e consta no certificado "
+                "que acompanha o produto — a loja pode intermediar"
+            )
+        return "ainda aberto: " + "; ".join(self.available_paths) + (
+            f". já encerrado: {'; '.join(self.blocked_paths)}" if self.blocked_paths else ""
+        )
 
 
 def assess_return(order_status: str, order_date: date, today: date,
