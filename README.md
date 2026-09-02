@@ -146,6 +146,23 @@ the focus is the agent working correctly, so the UI got the smallest surface tha
 still demonstrates the full-stack side, and the separation means a FastAPI
 endpoint would be the same object behind a different transport.
 
+The one thing the UI adds is the **Mostrar consultas do agente** toggle, which
+prints the arguments the model sent and the JSON the tool answered with. It turns
+every reply into something you can audit against its source.
+
+![The agent answering a price question, with the tool call expanded](docs/streamlit-preco.png)
+
+The reply says R$439,20 because `price_now_brl` says 439.2. `pix_price_brl` is
+439.2 too — the PIX discount did not stack on the promotional price, which is
+§6.2 of the manual decided in `rules.py`, not by the model. `max_installments` is
+5 because 439.20 split six ways falls under the R$80 floor.
+
+![The agent answering a return question, with the retrieved policy section expanded](docs/streamlit-devolucao.png)
+
+Here the same panel shows retrieval instead: the section BM25 ranked first, its
+score, and the manual text the answer was written from. The agent also asks for
+the e-mail or phone before touching the order — identity first, §7.2.
+
 ### Conversation history
 
 Stored per `session_id` in the same SQLite file, last 12 exchanges. Real support
@@ -327,6 +344,12 @@ And a review pass caught two more the tests had not: every tool call was leaking
 a SQLite handle, because `with connection:` manages the transaction and not the
 handle; and the tools trusted the model's argument types, so a stock filter sent
 as the string `"false"` stayed quietly on.
+
+And *running the interface* caught one that no amount of reading would have: in
+Streamlit, `$` opens LaTeX, so `R$ 439,20 (de R$ 549,00)` rendered as
+`R 439,20 (de R 549,00)` with the span between the two signs typeset as math.
+Every price in the browser was wrong while every price in the CLI was right. The
+screenshots above are from after the fix; taking them is what surfaced it.
 
 Each of those is now a test and its own commit.
 
