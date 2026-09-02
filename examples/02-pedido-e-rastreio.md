@@ -9,12 +9,10 @@ O agente se recusa a falar do pedido antes de confirmar quem está perguntando, 
 
 **Cliente:** quero saber do meu pedido 8
 
-**Téo:** Oi! Para eu consultar o pedido 8, preciso do e‑mail ou do telefone cadastrado. Você pode me passar um desses?
+**Téo:** Oi! Para eu checar o status do pedido #8, preciso confirmar seu contato. Pode me passar o e‑mail ou o telefone cadastrado, por favor?
 
 **Cliente:** é a ana carolina, meu email é anacarol.ferreira@coldmail.com
 
 <sub>consultou `get_order`</sub>
 
-**Téo:** Oi Ana, tudo bem? Seu pedido 8 já foi enviado (código de rastreio **BRJL5544332BR**) e a entrega estava prevista para 28/02, mas ainda não chegou. Como já faz mais de 30 dias do envio, a troca ou devolução só pode ser feita se o produto chegar com algum problema (avaria, defeito etc.). Se isso acontecer, recuse a entrega ou entre em contato que a gente te orienta o próximo passo.
-
-Precisa de mais alguma coisa?
+**Téo:** Ana, seu pedido #8 já foi enviado (código de rastreio BRJL5544332BR) e a entrega está prevista para 28/02. Como já passou da data de entrega, se houver algum problema (avaria, item errado etc.) você pode recusar o recebimento ou entrar em contato que o time de devoluções te ajuda. Mais alguma coisa?

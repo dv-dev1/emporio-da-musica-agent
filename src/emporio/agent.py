@@ -1,12 +1,20 @@
 """The conversation loop: model decides, tools answer, model writes."""
 
 import json
+import time
 from dataclasses import dataclass, field
 
-from groq import Groq
+from groq import APIStatusError, Groq
 
 from . import config, prompts, tools
 from .memory import History
+
+
+RETRIES = 3
+TRANSIENT_STATUS = {429, 500, 502, 503}
+# A 400 is normally the caller's fault, except this one: it means the model
+# emitted something that is not a valid tool call, which the next sample fixes.
+TRANSIENT_CODE = "tool_use_failed"
 
 
 class MissingApiKey(RuntimeError):
@@ -51,14 +59,9 @@ class Agent:
         used: list[ToolCall] = []
 
         for _ in range(config.MAX_TOOL_ROUNDS):
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=conversation,
-                tools=tools.SCHEMAS,
-                tool_choice="auto",
-                temperature=0.3,
-            )
-            choice = response.choices[0].message
+            choice = self._complete(conversation)
+            if choice is None:
+                break
             if not choice.tool_calls:
                 answer = (choice.content or "").strip()
                 self.history.append("user", message)
@@ -77,7 +80,8 @@ class Agent:
                     "content": json.dumps(result, ensure_ascii=False, default=str),
                 })
 
-        # Six rounds without an answer means the model is looping on tools.
+        # Either six rounds without an answer, or the API kept refusing. Both end
+        # the same way: say so and hand the customer a phone number.
         fallback = (
             "Desculpa, me embananei aqui na consulta. Pode repetir a pergunta de "
             "outro jeito? Se preferir, fala com a gente no (67) 3321-4500."
@@ -85,6 +89,43 @@ class Agent:
         self.history.append("user", message)
         self.history.append("assistant", fallback)
         return Reply(fallback, used)
+
+    def _complete(self, conversation: list[dict]):
+        """One completion, retried on a transient API failure.
+
+        gpt-oss sometimes emits its internal reasoning channel as a tool call
+        named "commentary", which Groq rejects outright. It is sampling
+        dependent, so the same request usually succeeds on the next attempt —
+        and dropping the customer over it would be the worse outcome.
+
+        Returns None once the retries are spent, so the caller can apologise.
+        A bad key or a missing model is not transient and is raised as is,
+        because hiding it behind a friendly message only wastes someone's
+        afternoon.
+        """
+        for attempt in range(RETRIES):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=conversation,
+                    tools=tools.SCHEMAS,
+                    tool_choice="auto",
+                    temperature=0.3,
+                )
+                return response.choices[0].message
+            except APIStatusError as error:
+                if not _is_transient(error):
+                    raise
+                if attempt < RETRIES - 1:
+                    time.sleep(0.6 * (attempt + 1))
+        return None
+
+
+def _is_transient(error: APIStatusError) -> bool:
+    if error.status_code in TRANSIENT_STATUS:
+        return True
+    body = error.body if isinstance(error.body, dict) else {}
+    return body.get("error", {}).get("code") == TRANSIENT_CODE
 
 
 def _decode(raw: str) -> dict:
