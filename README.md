@@ -142,6 +142,15 @@ more reliably on ambiguous turns. It would not make the prices more correct — 
 prices are already not the model's job. The provider sits behind one client call
 in `agent.py`, so swapping it is a config change.
 
+That free tier caps daily tokens, and a long session reaches the cap. The agent
+treats a 429 as transient, retries three times and then apologises with the
+store's phone number rather than hanging on a window that takes minutes to
+reopen. So the reply below is a spent quota, not a broken agent — it takes a few
+minutes, or another key, to clear:
+
+> Desculpa, me embananei aqui na consulta. Pode repetir a pergunta de outro
+> jeito? Se preferir, fala com a gente no (67) 3321-4500.
+
 ### Interface: CLI first, Streamlit on top
 
 The CLI is the real client — scriptable, and what `--ask` makes testable.
