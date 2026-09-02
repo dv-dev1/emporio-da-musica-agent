@@ -40,7 +40,14 @@ streamlit run app.py                                      # browser chat
 pytest                                                    # 112 tests, no API key
 pytest -m spec                                            # only the policy clauses
 python scripts/spec_matrix.py                             # regenerates SPEC.md
+python scripts/validate.py                                # sweeps the data, no key
 ```
+
+`pytest` pins the rules with chosen examples; `scripts/validate.py` sweeps the
+shipped data through them — every catalogue row against the pricing rules, every
+order against the identity gate and the return windows, every manual section
+through the index, and twenty-eight malformed arguments at the tool boundary. It
+needs no API key and exits non-zero on the first failure.
 
 The dataset is a snapshot whose last order is from March 2026, so deadlines like
 "7 days to return" are meaningless against a real clock. `EMPORIO_TODAY` pins the
