@@ -29,27 +29,29 @@ Requires Python 3.11+ and a free Groq API key from
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -e ".[dev]"     # the package plus pytest
 
 cp .env.example .env        # then paste your key into GROQ_API_KEY
 python -m emporio.etl       # builds data/emporio.db from the CSVs
 ```
 
-`src` has to be on the path — either `pip install -e .` style or the explicit
-prefix used below.
-
 ```bash
-PYTHONPATH=src python -m emporio.cli                      # terminal chat
-PYTHONPATH=src python -m emporio.cli --show-tools         # shows each lookup
-PYTHONPATH=src python -m emporio.cli --ask "que horas abre no sábado?"
+python -m emporio.cli                       # terminal chat
+python -m emporio.cli --show-tools          # shows every lookup behind an answer
+python -m emporio.cli --ask "que horas abre no sábado?"
+emporio --show-tools                        # same thing, installed as a command
 
-streamlit run app.py                                      # browser chat
+streamlit run app.py                        # browser chat
 
-pytest                                                    # 122 tests, no API key
-pytest -m spec                                            # only the policy clauses
-python scripts/spec_matrix.py                             # regenerates SPEC.md
-python scripts/validate.py                                # sweeps the data, no key
+pytest                                      # 122 tests, no API key
+pytest -m spec                              # only the policy clauses
+python scripts/spec_matrix.py               # regenerates SPEC.md
+python scripts/validate.py                  # sweeps the data, no API key
 ```
+
+Without the editable install, `src` has to be on the path instead — prefix the
+`emporio` commands with `PYTHONPATH=src`. `pytest` and both scripts work either
+way.
 
 `pytest` pins the rules with chosen examples; `scripts/validate.py` sweeps the
 shipped data through them — every catalogue row against the pricing rules, every
@@ -62,7 +64,7 @@ The dataset is a snapshot whose last order is from March 2026, so deadlines like
 reference date:
 
 ```bash
-EMPORIO_TODAY=2026-03-25 PYTHONPATH=src python -m emporio.cli
+EMPORIO_TODAY=2026-03-25 python -m emporio.cli
 ```
 
 It pins the date everywhere, `store_info` included: with a Sunday pinned, the
