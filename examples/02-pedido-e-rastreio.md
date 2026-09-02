@@ -9,10 +9,10 @@ O agente se recusa a falar do pedido antes de confirmar quem está perguntando, 
 
 **Cliente:** quero saber do meu pedido 8
 
-**Téo:** Oi! Para eu checar o status do pedido #8, preciso confirmar seu contato. Pode me passar o e‑mail ou o telefone cadastrado, por favor?
+**Téo:** Oi! Para eu consultar o status do pedido #8, preciso confirmar seu contato. Pode me passar o e‑mail ou o telefone cadastrado, por favor?
 
 **Cliente:** é a ana carolina, meu email é anacarol.ferreira@coldmail.com
 
 <sub>consultou `get_order`</sub>
 
-**Téo:** Ana, seu pedido #8 já foi enviado. O código de rastreio é **BRJL5544332BR** e a entrega está prevista para **28/02/2026**. Como ainda não recebeu, você tem a opção de recusar o recebimento caso o produto chegue avariado. Se precisar de mais alguma coisa, é só falar!
+**Téo:** Ana, seu pedido #8 já foi enviado (código de rastreio **BRJL5544332BR**) e a entrega está prevista para **28/02/2026**. Como ainda não recebeu, você ainda pode recusar o recebimento caso o produto chegue avariado. Precisa de mais alguma coisa?

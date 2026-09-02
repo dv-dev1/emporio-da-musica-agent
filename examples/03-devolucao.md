@@ -9,23 +9,24 @@ Caso não trivial. Exige o pedido (data de recebimento) e o manual (prazo de 7 d
 
 **Cliente:** me arrependi da compra, quero devolver o pedido 4
 
-**Téo:** Oi! Para eu checar o seu pedido e te orientar sobre a devolução, preciso do e‑mail ou telefone cadastrado. Você pode me passar, por favor?
+**Téo:** Oi! Para eu checar o seu pedido e te orientar sobre a devolução, preciso do e‑mail ou telefone cadastrado. Pode me passar, por favor?
 
 **Cliente:** lucas.mendes@jmail.com
 
 <sub>consultou `get_order`</sub>
 
-**Téo:** Oi Lucas, tudo bem? Pelo que eu vi, seu pedido #4 já foi entregue há mais de 90 dias. Nesse caso o direito de arrependimento (7 dias) e a troca por preferência não estão mais disponíveis. Você ainda pode acionar a garantia do fabricante (geralmente de 6 meses a 2 anos, conforme o certificado que vem com o violão), e a loja pode intermediar esse processo.
+**Téo:** Entendi, Lucas. Seu pedido 4 já foi entregue há mais de 90 dias, então o direito de arrependimento (7 dias) e a troca por preferência não estão mais disponíveis. Ainda resta a garantia do fabricante, que pode variar de 6 meses a 2 anos conforme a marca. A loja pode intermediar esse processo, mas o prazo depende do certificado que veio com o violão.
 
-Se quiser seguir por esse caminho ou precisar de mais alguma coisa, me avisa!
+Se quiser seguir por aí, o time de suporte da Empório da Música vai analisar sua solicitação e retorna em até 24 horas úteis.
+
+Precisa de mais alguma coisa?
 
 **Cliente:** e se tiver defeito de fábrica, muda alguma coisa?
 
 <sub>consultou `search_policies`</sub>
 
-**Téo:** Exato, Lucas. Se o produto apresentar defeito de fabricação, a gente tem duas opções:
+**Téo:** Boa, Lucas. Se o seu instrumento tem defeito de fábrica, a garantia legal de 90 dias cobre o problema. Além disso, a maioria das marcas oferece garantia própria (geralmente de 6 meses a 2 anos) que está no certificado que veio com o produto.
 
-1. **Até 30 dias** da compra: a Empório troca o item sem custo pra você.  
-2. **Depois de 30 dias**: você aciona a garantia do fabricante (geralmente de 6 meses a 2 anos). A loja pode intermediar o processo, mas a solicitação tem que ser feita ao fabricante.
+Como o seu pedido já foi entregue há mais de 90 dias, a garantia legal já expirou, mas você ainda pode acionar a garantia do fabricante. A Empório da Música pode intermediar esse processo; basta solicitar que o time responsável vai analisar e te responde em até 24 horas úteis.
 
-Lembre‑se que a garantia não cobre danos por mau uso, quedas ou umidade. Precisa de mais alguma coisa?
+Quer que eu passe mais alguma informação ou ajude com outra coisa?

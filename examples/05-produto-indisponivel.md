@@ -13,27 +13,39 @@ O agente não confirma disponibilidade do que acabou, oferece alternativa do cat
 
 **Téo:** Oi! O Giannini GF‑3D Dreadnought Sunburst está no nosso catálogo, mas no momento está sem estoque.
 
-Como alternativa, temos o **Giannini GF‑1R Aço Folk Sunburst** – está disponível (7 unidades) por **R$ 579,90** (ou R$ 550,90 à vista no Pix) em até 6× de R$ 96,65.
+Posso sugerir alguns violões Giannini que temos disponíveis e são parecidos:
 
-Quer que eu te passe mais detalhes ou procure outra opção? Se precisar de algo mais, é só falar!
+- **Giannini GF‑1R Aço Folk Sunburst** – R$ 579,90 (ou R$ 550,90 à vista no Pix) – até 6x de R$ 96,65.  
+- **Giannini GN‑15 Nylon Cedr Natural** – R$ 689,00 (ou R$ 654,55 à vista no Pix) – até 6x de R$ 114,83.  
+- **Giannini GNF‑3 CEQ Elétrico Nylon Natural** – R$ 1 049,00 (ou R$ 996,55 à vista no Pix) – até 10x de R$ 104,90.  
+- **Giannini GWNE‑7 7 Cordas Nylon Natural** – R$ 1 149,00 (ou R$ 1 091,55 à vista no Pix) – até 11x de R$ 104,45.
+
+Quer saber mais detalhes de algum desses ou procurar outra opção? Estou aqui pra ajudar!
 
 **Cliente:** vi que teve black friday nele, ainda vale aquele desconto?
 
 <sub>consultou `search_products`</sub>
 
-**Téo:** Oi! No momento o Giannini GF‑3D Dreadnought Sunburst está **sem estoque** e o preço está **R$ 799,90** (ou **R$ 759,90 à vista no Pix**). Não tem desconto ativo de Black Friday agora.
+**Téo:** Oi! O Black Friday acabou, então o Giannini GF‑3D Dreadnought Sunburst está sem desconto agora – preço de tabela R$ 799,90 (ou R$ 759,90 à vista no Pix). Além disso, o modelo está sem estoque no momento.
 
-Posso sugerir algum modelo parecido que esteja disponível, como o Giannini GF‑1R Aço Folk Sunburst (R$ 579,90) ou outro violão que você curta. Quer que eu mostre mais opções?
+Posso te indicar alguns violões Giannini que temos em estoque e são bem parecidos:
+
+- **Giannini GF‑1R Aço Folk Sunburst** – R$ 579,90 (ou R$ 550,90 à vista no Pix) – até 6x de R$ 96,65.  
+- **Giannini GN‑15 Nylon Cedr Natural** – R$ 689,00 (ou R$ 654,55 à vista no Pix) – até 6x de R$ 114,83.  
+- **Giannini GNF‑3 CEQ Elétrico Nylon Natural** – R$ 1 049,00 (ou R$ 996,55 à vista no Pix) – até 10x de R$ 104,90.  
+- **Giannini GWNE‑7 7 Cordas Nylon Natural** – R$ 1 149,00 (ou R$ 1 091,55 à vista no Pix) – até 11x de R$ 104,45.
+
+Quer saber mais de algum desses ou procurar outra opção? Estou aqui pra ajudar!
 
 **Cliente:** e o ohana ck-20, tá com algum desconto?
 
 <sub>consultou `search_products`</sub>
 
-**Téo:** Oi! Temos o **Ohana CK‑20 Concert Natural** em estoque (6 unidades).  
+**Téo:** Oi! Temos o **Ohana CK‑20 Concert Natural** em estoque.
 
 - **Preço de tabela:** R$ 549,00  
-- **Preço com desconto:** R$ 439,20 (20 % off – “Desconto Exclusivo”)  
+- **Preço com desconto:** R$ 439,20 (20 % off – Desconto Exclusivo)  
 - **À vista no Pix:** R$ 439,20  
-- **Parcelamento:** até 5× de R$ 87,84  
+- **Parcelamento:** até 5x de R$ 87,84  
 
-Quer saber mais detalhes ou outra cor/modelo? É só falar!
+Quer saber mais detalhes ou ver alguma outra opção? Estou à disposição!

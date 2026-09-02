@@ -48,11 +48,13 @@ CONVERSATIONS = [
         ],
     },
     {
-        "file": "04-fora-de-escopo.md",
-        "title": "Acessório e pergunta fora da loja",
-        "about": "A loja só vende instrumentos. O agente redireciona o pedido de "
-                 "acessório e recusa o assunto que não é da loja.",
+        "file": "04-informacoes-e-escopo.md",
+        "title": "Informações da loja, acessório e pergunta fora do escopo",
+        "about": "O que a loja é, o que ela não vende e o que não é assunto dela. "
+                 "Abre com endereço e horário, que saem de `store_info` e não do "
+                 "prompt, e fecha recusando um assunto que o modelo sabe responder.",
         "turns": [
+            "qual o endereço de vocês? e que horas abre no sábado?",
             "vocês têm jogo de cordas e uma palheta pra guitarra?",
             "beleza. e qual a capital da Mongólia?",
         ],
