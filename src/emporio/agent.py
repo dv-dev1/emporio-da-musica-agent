@@ -12,8 +12,6 @@ from .memory import History
 
 RETRIES = 3
 TRANSIENT_STATUS = {429, 500, 502, 503}
-# A 400 is normally the caller's fault, except this one: it means the model
-# emitted something that is not a valid tool call, which the next sample fixes.
 TRANSIENT_CODE = "tool_use_failed"
 
 
@@ -50,6 +48,12 @@ class Agent:
             )
 
     def reply(self, message: str) -> Reply:
+        """Answers one customer message, consulting tools as needed.
+
+        Runs out either when the model stops asking for tools or after
+        MAX_TOOL_ROUNDS. Exhausting the rounds and exhausting the retries end the
+        same way: apologise and hand over a phone number.
+        """
         conversation = [
             {"role": "system", "content": prompts.SYSTEM_PROMPT},
             *self.history.messages(),
@@ -80,8 +84,6 @@ class Agent:
                     "content": json.dumps(result, ensure_ascii=False, default=str),
                 })
 
-        # Either six rounds without an answer, or the API kept refusing. Both end
-        # the same way: say so and hand the customer a phone number.
         fallback = (
             "Desculpa, me embananei aqui na consulta. Pode repetir a pergunta de "
             "outro jeito? Se preferir, fala com a gente no (67) 3321-4500."
@@ -122,6 +124,12 @@ class Agent:
 
 
 def _is_transient(error: APIStatusError) -> bool:
+    """Whether the same request is worth sending again.
+
+    A 400 is normally the caller's fault, with one exception: tool_use_failed
+    means the model emitted something that is not a valid tool call, which the
+    next sample fixes on its own.
+    """
     if error.status_code in TRANSIENT_STATUS:
         return True
     body = error.body if isinstance(error.body, dict) else {}

@@ -16,9 +16,6 @@ REGRET_DAYS = 7
 DEFECT_EXCHANGE_DAYS = 30
 LEGAL_WARRANTY_DAYS = 90
 
-# Manual 3.1. The 3.0 table also states a flat R$100 minimum for credit, which
-# contradicts these bands; the more specific rule wins. Read "sem valor mínimo
-# de parcela (exceto abaixo de R$ 50,00)" as a R$50 floor on the installment.
 INSTALLMENT_FLOORS = [(3, 50.0), (6, 80.0), (12, 100.0)]
 
 OPENING_HOURS = {
@@ -49,6 +46,12 @@ class Money:
 
 
 def max_installments(amount: float) -> int:
+    """Largest interest free installment count for an amount, per manual 3.1.
+
+    The 3 table also states a flat R$100 minimum for credit, which contradicts
+    those bands; the more specific rule wins. "Sem valor mínimo de parcela
+    (exceto abaixo de R$ 50,00)" is read as a R$50 floor on the installment.
+    """
     best = 1
     for ceiling, floor in INSTALLMENT_FLOORS:
         for count in range(best + 1, ceiling + 1):
@@ -129,10 +132,14 @@ class ReturnAssessment:
     conditions: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict:
-        # A model reading two lists will find a way to read them wrong, so the
-        # verdict is also spelled out as one sentence it can only paraphrase.
+        """The assessment as plain data, verdict included.
+
+        A model reading two lists of open and closed windows will find a way to
+        read them wrong, so the verdict is also spelled out as one sentence it
+        can only paraphrase. An empty available_paths is itself an answer, which
+        is why only None is dropped.
+        """
         self.summary = self._summary()
-        # An empty available_paths is an answer, so only None is dropped.
         return {key: value for key, value in self.__dict__.items() if value is not None}
 
     def _summary(self) -> str:

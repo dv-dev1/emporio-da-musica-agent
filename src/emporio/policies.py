@@ -38,6 +38,11 @@ class Section:
 
     @property
     def indexed_text(self) -> str:
+        """Text handed to the index, with the title repeated.
+
+        Repeating it ranks a section up when the question is phrased the way its
+        heading is.
+        """
         return f"{self.parent} {self.title} {self.title} {self.text}"
 
 
@@ -59,6 +64,9 @@ def extract_sections(pdf_path: Path) -> list[Section]:
     Section 7.2 contains a numbered list that looks exactly like a heading, so a
     candidate is only accepted when it continues the sequence: after 7.1 the
     document can open 7.2 or 8, never a fresh 1.
+
+    A top level heading with no body of its own exists only to name its
+    subsections, so its title is carried down to them rather than dropped.
     """
     sections: list[Section] = []
     top = sub = 0
@@ -81,8 +89,6 @@ def extract_sections(pdf_path: Path) -> list[Section]:
                 if starts_section:
                     top, sub = major, 0
                     number = f"{top}."
-                    # A top level heading with no body of its own only exists to
-                    # name its subsections, so it is carried down instead of lost.
                     parent = f"{top}. {heading.strip()}"
                 else:
                     sub = int(minor)
@@ -98,8 +104,6 @@ def extract_sections(pdf_path: Path) -> list[Section]:
 class PolicyIndex:
     def __init__(self, sections: list[Section]):
         self.sections = sections
-        # The title is repeated in the indexed text so a question phrased like the
-        # heading ranks that section up.
         self._bm25 = BM25Okapi([stem(section.indexed_text) for section in sections])
 
     def search(self, question: str, limit: int = 3) -> list[dict]:
