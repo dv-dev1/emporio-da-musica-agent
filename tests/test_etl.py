@@ -1,4 +1,5 @@
 import sqlite3
+from contextlib import closing
 
 import pytest
 
@@ -8,10 +9,9 @@ from emporio import config, etl
 @pytest.fixture(scope="module")
 def db(tmp_path_factory):
     path = etl.build(tmp_path_factory.mktemp("etl") / "emporio.db", config.DATA_DIR)
-    connection = sqlite3.connect(path)
-    connection.row_factory = sqlite3.Row
-    yield connection
-    connection.close()
+    with closing(sqlite3.connect(path)) as connection:
+        connection.row_factory = sqlite3.Row
+        yield connection
 
 
 def test_every_csv_becomes_a_table(db):
@@ -60,7 +60,12 @@ def test_a_discounted_price_is_never_above_the_list_price(db):
 def test_rebuilding_is_idempotent(tmp_path):
     path = tmp_path / "emporio.db"
     etl.build(path, config.DATA_DIR)
-    first = sqlite3.connect(path).execute("SELECT COUNT(*) FROM products").fetchone()[0]
+    first = _count(path)
     etl.build(path, config.DATA_DIR)
-    second = sqlite3.connect(path).execute("SELECT COUNT(*) FROM products").fetchone()[0]
+    second = _count(path)
     assert first == second
+
+
+def _count(path):
+    with closing(sqlite3.connect(path)) as connection:
+        return connection.execute("SELECT COUNT(*) FROM products").fetchone()[0]
