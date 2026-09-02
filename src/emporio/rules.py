@@ -128,7 +128,8 @@ class ReturnAssessment:
     conditions: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict:
-        return {key: value for key, value in self.__dict__.items() if value not in (None, [])}
+        # An empty available_paths is an answer, so only None is dropped.
+        return {key: value for key, value in self.__dict__.items() if value is not None}
 
 
 def assess_return(order_status: str, order_date: date, today: date,
