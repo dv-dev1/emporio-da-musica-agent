@@ -122,7 +122,15 @@ def search_products(query: str = "", category: str = "", min_price: float | None
     min_price = _as_number(min_price)
     max_price = _as_number(max_price)
     limit = _as_int(limit, 5) or 5
-    results = _catalog_query(query, category, min_price, max_price, only_in_stock, limit)
+
+    near = None
+    if min_price is not None and min_price == max_price:
+        # nobody shops for exactly R$599,00 and not R$599,90: a single value is a
+        # price the customer remembers, and the catalogue owns the real one
+        near, min_price, max_price = min_price, None, None
+
+    results = _catalog_query(query, category, min_price, max_price,
+                             only_in_stock, limit, near)
     if results or not only_in_stock:
         payload = {"count": len(results), "products": results}
         if not results:
@@ -132,7 +140,20 @@ def search_products(query: str = "", category: str = "", min_price: float | None
             )
         return payload
 
-    unavailable = _catalog_query(query, category, min_price, max_price, False, limit)
+    unavailable = _catalog_query(query, category, min_price, max_price,
+                                 False, limit, near)
+    if not unavailable and (min_price is not None or max_price is not None):
+        # the price emptied the search, not the catalogue: saying the store does
+        # not carry it would be a different, and false, statement
+        outside = _catalog_query(query, category, None, None, False, limit, near)
+        if outside:
+            return {
+                "count": 0,
+                "products": [],
+                "outside_price_range": outside,
+                "note": "o produto existe no catálogo, mas não nessa faixa de preço; "
+                        "diga o preço real destes em vez de dizer que a loja não tem",
+            }
     if not unavailable:
         return {
             "count": 0,
@@ -151,7 +172,8 @@ def search_products(query: str = "", category: str = "", min_price: float | None
 
 
 def _catalog_query(query: str, category: str, min_price: float | None,
-                   max_price: float | None, only_in_stock: bool, limit: int) -> list[dict]:
+                   max_price: float | None, only_in_stock: bool, limit: int,
+                   near: float | None = None) -> list[dict]:
     """Free text searches the whole row; a category only ever filters its column.
 
     Folding the two together made the category one more word to look for in the
@@ -180,9 +202,15 @@ def _catalog_query(query: str, category: str, min_price: float | None,
     where = " AND ".join(clauses) or "1 = 1"
     limit = max(1, min(limit, MAX_RESULTS))
 
+    order = "effective_price"
+    if near is not None:
+        # a remembered price orders the answer instead of filtering it
+        order = "ABS(effective_price - ?), effective_price"
+        params.append(near)
+
     with _session() as connection:
         rows = connection.execute(
-            f"SELECT * FROM catalog WHERE {where} ORDER BY effective_price LIMIT ?",
+            f"SELECT * FROM catalog WHERE {where} ORDER BY {order} LIMIT ?",
             [*params, limit],
         ).fetchall()
 
@@ -339,7 +367,15 @@ SCHEMAS = [
                                        "Teclados e Pianos, Violões ou Ukuleles.",
                     },
                     "min_price": {"type": "number"},
-                    "max_price": {"type": "number"},
+                    "max_price": {
+                        "type": "number",
+                        "description": "Só para teto de orçamento que o cliente "
+                                       "impôs: 'até R$1000', 'no máximo 500'. "
+                                       "Preço que o cliente atribui a um produto "
+                                       "('o violão de 599') não é filtro — ele "
+                                       "está lembrando, e o preço certo é o do "
+                                       "catálogo; passe isso na query.",
+                    },
                     "only_in_stock": {
                         "type": "boolean",
                         "description": "Padrão true. Só use false se o cliente quiser "

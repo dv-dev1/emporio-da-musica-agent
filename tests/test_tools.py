@@ -118,6 +118,50 @@ def test_open_right_now_follows_the_pinned_date(monkeypatch):
     assert tools.store_info()["right_now"]["open"] in {True, False}
 
 
+@pytest.mark.spec("7.1")
+def test_a_remembered_price_orders_the_answer_instead_of_filtering_it():
+    """The customer recalls a price; the catalogue owns it.
+
+    Asked about "um violão de 599 reais" the model sent min_price == max_price
+    == 599. No violão costs exactly that, the Yamaha C40 costs R$599,90, and an
+    equality band is the signature of a half-remembered figure rather than a
+    constraint anyone could mean.
+    """
+    found = tools.search_products(category="Violões", min_price=599, max_price=599,
+                                  only_in_stock=True, limit=5)
+    assert found["products"], "faixa de valor único não pode zerar a busca"
+    assert found["products"][0]["name"] == "Yamaha C40 Nylon Natural"
+    assert found["products"][0]["price_now_brl"] == 599.9
+
+
+@pytest.mark.spec("7.1")
+def test_a_budget_ceiling_is_still_a_filter():
+    """"Até R$1000" is the customer's own constraint and must keep filtering."""
+    found = tools.search_products(category="Violões", max_price=1000, limit=8)
+    assert found["products"]
+    assert all(product["price_now_brl"] <= 1000 for product in found["products"])
+
+
+@pytest.mark.spec("7.3")
+def test_an_empty_price_range_does_not_deny_the_catalogue():
+    """An empty range means nothing at that price, never "the store lacks it".
+
+    The two statements reach the customer as the same sentence and only one of
+    them is true.
+    """
+    found = tools.search_products(category="Violões", min_price=20000, max_price=30000)
+    assert found["count"] == 0
+    assert "não existe no catálogo" not in found["note"]
+    assert found["outside_price_range"], "devia mostrar o que existe fora da faixa"
+    assert all(item["category"] == "Violões" for item in found["outside_price_range"])
+
+
+@pytest.mark.spec("7.3")
+def test_a_product_the_store_never_had_is_still_denied():
+    found = tools.search_products(query="Fender Stratocaster Zakk Wylde Signature")
+    assert found["note"].startswith("esse produto não existe")
+
+
 def test_a_category_never_returns_another_category():
     """A category filters its column, it is not one more word to search for.
 
