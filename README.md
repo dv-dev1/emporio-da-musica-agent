@@ -14,6 +14,14 @@ customer ──▶ LLM (Groq) ──▶ tool ──▶ SQLite (catalogue, orders
                         └──▶ answer, written from what came back
 ```
 
+**[Running it](#running-it)** · **[What it does](#what-it-does)** ·
+**[Technical decisions](#technical-decisions)** ·
+**[Assumptions](#assumptions-i-had-to-make)** ·
+**[Limitations](#known-limitations)** ·
+**[With more time](#what-i-would-do-with-more-time)** ·
+**[How this was built](#how-this-was-built)** ·
+[`SPEC.md`](SPEC.md) · [`examples/`](examples/)
+
 ## Running it
 
 Requires Python 3.11+ and a free Groq API key from
@@ -248,6 +256,10 @@ one and what I did:
   live system, with caching and invalidation, not a CSV import.
 - Nothing verifies the customer beyond matching a contact already on the order —
   fine for a prototype, not an identity check.
+- **The one number the architecture cannot fully guarantee is the one the model
+  types.** Prices leave the tools already formatted for it to copy, which measured
+  clean over thirteen runs, but copying is a mitigation and no test can assert
+  what a model will write.
 
 ## What I would do with more time
 
@@ -306,21 +318,25 @@ until a three-line plan — what changes, what context it rests on, what it
 touches — has been stated and approved; no turn closes without a stated result
 and how to verify it.
 
-### The harness: deterministic gates around a non-deterministic collaborator
+### The gate is enforced by the runtime, not by the model
 
-That last layer is not discipline, it is enforcement. My environment configures
-hooks that the runtime executes, not the model:
+That last layer is not discipline. Discipline degrades over a long session, and
+it degrades exactly when the session is going well. It is enforcement: the
+environment I work in installs gates that the runtime executes around the
+assistant's tool calls.
 
-| Hook | Event | What it enforces |
-|---|---|---|
-| `workspace-context-nudge` | `UserPromptSubmit` | the workspace context is read before anything is proposed |
-| `preflight-guard` | `PreToolUse` on `Edit\|Write\|Bash\|Agent\|mcp__.*` | **blocks** every state-changing call until a plan is approved |
-| `recap-guard` | `Stop` | refuses to end a turn that changed state without a stated, verifiable result |
-| `mermaid-tty` | `Stop` | renders the plan and result diagrams in the terminal |
+- One runs before anything is proposed, and requires the workspace context — the
+  conventions, the existing structure, the files the request touches — to be read
+  first, so a plan is written against the repository rather than against a guess.
+- One sits in front of every state-changing call — file writes, shell commands,
+  subagents, MCP calls — and **blocks** it until a plan has been approved. Reads,
+  trivial edits and anything under `/tmp` pass freely, because a gate that stops
+  everything is a gate that gets switched off.
 
-The important property: **the assistant cannot bypass these.** They sit in the
-tool-call path, in a layer it does not control. Approval is a human decision, and
-without it nothing on disk moves.
+The property that matters is not that a plan exists. It is that **the assistant
+cannot bypass it**: the gate runs in the tool-call path, in a layer the model does
+not control and cannot argue with. Approval is a human decision, and without one
+nothing on disk moves.
 
 ### The same architecture, twice
 
@@ -354,69 +370,77 @@ a SQL agent cost me here" — those are questions I put to it before committing 
 an answer, not answers I took from it.
 
 **Code was largely generated and then reviewed, and the review is where the
-engineering was.** Reading the code caught a PDF extractor that silently
-collapsed the whole manual into one section, a heading pattern that swallowed
-everything from §7.2 onward, and a return assessment that dropped its
-`available_paths` key at exactly the moment "nothing is available" was the
-answer.
+engineering was.** Seven defects came out of that review. What is worth reading
+is not the list but the column beside it: no single method found more than two,
+and the two that mattered most were found by neither the tests nor the sweep.
 
-Reading the *recorded conversations* caught three more — which is the argument
-for generating transcripts rather than writing them:
+| Defect | Found by |
+|---|---|
+| A PDF extractor collapsed the whole manual into one section, and a heading pattern swallowed everything from §7.2 onward | reading the code |
+| A return assessment dropped its `available_paths` key at exactly the moment *"nothing is available"* was the answer | reading the code |
+| Listings carried no payment terms, so the model recited the manual's 12x ceiling and offered twelve installments on a R$599 guitar that supports six | reading a recorded transcript |
+| A sold-out guitar came back as an empty search and the agent said the store does not carry it — §7.3 asks for the opposite | reading a recorded transcript |
+| Asked the capital of Mongolia after two friendly turns, the agent answered Ulan Bator; the rule sat in the system prompt, four turns away | reading a recorded transcript |
+| Every tool call leaked a SQLite handle: `with connection:` manages the transaction, not the handle | a dedicated review pass |
+| Tools trusted the model's argument types, so a stock filter arriving as the string `"false"` stayed quietly on | a dedicated review pass |
+| In Streamlit `$` opens LaTeX, so `R$ 439,20 (de R$ 549,00)` lost both signs and typeset the span between them as mathematics — every price wrong in the browser, right in the terminal | running the interface |
+| `EMPORIO_TODAY` pinned the date for order deadlines but not for `store_info`, so a Sunday still reported the store open | sweeping the data |
+| Two connections in the ETL *test* file were never closed — the defect an earlier commit set out to fix everywhere, surviving in the file meant to prove it gone | `pytest -W error::ResourceWarning` |
+| A category was a search term rather than a filter, so a barítono ukulele came back as a violão | **disbelieving an answer** |
+| An empty price range claimed the catalogue was empty, so the agent denied a product it had in stock | **disbelieving an answer** |
 
-- Listings carried no payment terms, so the model went back to the manual, read
-  its 12x ceiling and offered twelve installments on a R$599 guitar that supports
-  six.
-- A sold-out guitar came back as an empty search and the agent told the customer
-  the store does not carry it. §7.3 asks for the opposite.
-- Asked for the capital of Mongolia after two friendly turns, it answered Ulan
-  Bator. The rule was in the system prompt, four turns away.
+A JSON schema, for the record, is a request to a language model and not a
+constraint on it. Two of the entries above are that lesson.
 
-And a review pass caught two more the tests had not: every tool call was leaking
-a SQLite handle, because `with connection:` manages the transaction and not the
-handle; and the tools trusted the model's argument types, so a stock filter sent
-as the string `"false"` stayed quietly on.
+### The two the tests could not have caught
 
-And *running the interface* caught one that no amount of reading would have: in
-Streamlit, `$` opens LaTeX, so `R$ 439,20 (de R$ 549,00)` rendered as
-`R 439,20 (de R 549,00)` with the span between the two signs typeset as math.
-Every price in the browser was wrong while every price in the CLI was right. The
-screenshots above are from after the fix; taking them is what surfaced it.
+Asked how many installments for *"um violão de 599 reais"*, the agent replied
+that the store had no violão at R$599,00. It has the Yamaha C40, at R$599,90.
+Every test passed and so did the data sweep, because a test can only ask the
+question it was written to ask, and nobody had thought to ask whether a category
+filters. Behind that one sentence sat two defects.
 
-And *disbelieving an answer* caught the two that mattered most. Asked how many
-installments for *"um violão de 599 reais"*, the agent replied that the store had
-no violão at R$599,00 — it has the Yamaha C40 at R$599,90. Every test passed and
-so did the data sweep, because both check the question they were written to ask.
-Two defects sat behind that sentence:
+The first: query and category were folded into one list of words matched against
+name, description and category together, so a barítono ukulele whose description
+calls it *"uma ponte entre o ukulele e o violão"* came back as a violão — at
+R$599,00, which is how the wrong instrument's price ended up under the C40's
+name. A category now filters its own column.
 
-- **A category was a search term, not a filter.** Query and category were folded
-  into one list of words matched against name, description and category together,
-  so a barítono ukulele whose description calls it *"uma ponte entre o ukulele e
-  o violão"* came back as a violão — at R$599,00, which is how the wrong
-  instrument's price ended up under the C40's name.
-- **An empty price range claimed the catalogue was empty.** The tool already told
-  a product the store never carried apart from one merely out of stock, as §7.3
-  asks. It did not tell either apart from one that exists outside the price
-  asked about, so a price filter emptying a search produced *the store does not
-  carry this* — a different, and false, claim.
+The second: `search_products` already told a product the store never carried
+apart from one merely out of stock, which is what §7.3 asks for. It did not tell
+either apart from one that exists *outside the price asked about*, so a price
+filter emptying a search produced *the store does not carry this* — a different,
+and false, claim. There is now a fourth rung for it.
 
-Underneath sits a smaller idea: **the customer does not know the price either.**
-They said 599 and the catalogue says 599,90 — they were recalling a figure, not
-setting one. A single value now orders results by distance from it instead of
-filtering to it; a budget they did impose, *"até R$1000"*, still filters.
+Under both sits a smaller idea. **The customer does not know the price either.**
+They said 599 and the catalogue says 599,90: they were recalling a figure, not
+setting one, and an equality band is the signature of a half-remembered number
+rather than a constraint anyone could mean. A single value now orders results by
+distance from it instead of filtering to it; a budget the customer did impose —
+*"até R$1000"* — still filters, because that one is theirs. It is the rule of
+this whole project applied one step further out: the model does not decide the
+number, and neither does the customer's memory.
 
-One of them survived its first fix, and that is worth recording. With retrieval
-corrected the agent found the right guitar and still wrote *"o violão de R$599,00
-(Yamaha C40 Nylon Natural)"*: the tool returned `599.9` and the model transcribed
-the float into Brazilian notation, landing on the customer's own round number. I
-had already tried to stop that with a line in the turn reminder, and the line did
-not hold — this project's own argument turned back on me. So the formatting left
-the model too: every product now carries `diga_assim` with the price, the list
-price, the PIX price and the installment already written out to copy. Thirteen
-runs across three phrasings are correct where the same question was wrong before.
-That is a smaller surface, not a proof — copying can still fail, and no test can
-assert what a model will write.
+### The fix that did not hold
 
-Each of those is now a test and its own commit.
+With retrieval corrected, the agent found the right guitar and still wrote *"o
+violão de R$599,00 (Yamaha C40 Nylon Natural)"*. The tool had returned `599.9`;
+the model transcribed the float into Brazilian notation and landed on the
+customer's own round number. I had already tried to prevent precisely that with a
+line in the turn reminder telling it to keep the decimals, and the line did not
+hold — this project's own argument, turned back on me.
+
+So the formatting left the model as well. Every product now carries `diga_assim`
+with the price, the list price, the PIX price and the installment already written
+out as strings to copy. Thirteen runs across three phrasings are correct where the
+same question was wrong before.
+
+That is a smaller surface, not a proof. Copying can still fail, and no test can
+assert what a model will write. It is the one place in this submission where the
+guarantee genuinely lives in the prompt, and it is the one number I cannot
+promise.
+
+Every defect above is a test and its own commit, named for the thing it fixes.
 
 **Where I deliberately did not use it.** The business rules in `rules.py` I
 transcribed from the manual myself and wrote tests against before generating
