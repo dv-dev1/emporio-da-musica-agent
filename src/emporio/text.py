@@ -23,7 +23,7 @@ def normalize(text: str) -> str:
 def singular(word: str) -> str:
     """Rough singular form, enough to make "violões" find "violão"."""
     for plural, base in PLURAL_ENDINGS:
-        if word.endswith(plural) and len(word) > len(plural) + 1:
+        if word.endswith(plural) and len(word) >= len(plural) + 1:
             return word[: -len(plural)] + base
     if word.endswith("s") and len(word) > 3:
         return word[:-1]
