@@ -30,10 +30,25 @@ def test_search_never_returns_anything_out_of_stock_by_default():
     assert all(product["in_stock"] for product in found["products"])
 
 
-def test_an_empty_result_says_so_instead_of_inviting_a_guess():
+def test_a_product_the_store_never_had_is_reported_as_such():
     found = tools.search_products(query="saxofone")
     assert found["count"] == 0
-    assert "note" in found
+    assert "unavailable" not in found
+    assert "não existe no catálogo" in found["note"]
+
+
+def test_a_product_that_only_ran_out_is_not_denied():
+    # Policy 7.3 draws this line: out of stock is announced with an alternative,
+    # not answered as if the instrument never existed.
+    found = tools.search_products(query="Giannini GF-3D Dreadnought")
+    assert found["count"] == 0
+    assert [p["name"] for p in found["unavailable"]] == ["Giannini GF-3D Dreadnought Sunburst"]
+    assert found["unavailable"][0]["availability_note"].startswith("sem estoque")
+
+
+def test_a_model_code_survives_the_query_parser():
+    found = tools.search_products(query="ohana ck-20")
+    assert found["products"][0]["name"] == "Ohana CK-20 Concert Natural"
 
 
 def test_unknown_product_is_an_error_not_an_empty_shell():
@@ -43,7 +58,7 @@ def test_unknown_product_is_an_error_not_an_empty_shell():
 def test_products_the_store_cannot_sell_carry_a_warning():
     # 96 ran out of stock, 113 was discontinued, 130 has not launched yet.
     for product_id in (96, 113, 130):
-        assert "availability_note" in tools.get_product(product_id)
+        assert tools.get_product(product_id)["availability_note"] != "disponível"
 
 
 def test_those_products_never_show_up_in_a_normal_search():

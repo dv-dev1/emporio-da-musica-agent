@@ -43,15 +43,18 @@ def stem(text: str) -> list[str]:
 
 
 def search_terms(query: str) -> list[str]:
-    """Meaningful singular words of a product query, numbers dropped.
+    """Meaningful singular words of a product query.
 
-    Amounts belong in the min_price and max_price arguments; matching "1000"
-    against product text would only produce noise.
+    Bare numbers are dropped: an amount belongs in min_price or max_price, and
+    matching "1000" against product text only produces noise. Short fragments
+    are kept, because a model code like GF-3D or CK-20 splits into exactly the
+    two-character pieces a length filter would throw away.
     """
-    words = re.findall(r"[a-z0-9]+", normalize(query))
     terms = []
-    for word in words:
-        if word.isdigit() or word in STOPWORDS or len(word) < 3:
+    for word in re.findall(r"[a-z0-9]+", normalize(query)):
+        if word.isdigit() or word in STOPWORDS:
+            continue
+        if len(word) < 2:
             continue
         terms.append(singular(word))
     return terms

@@ -34,6 +34,16 @@ def _digits(value: str) -> str:
     return re.sub(r"\D", "", value or "")
 
 
+def _availability(row: sqlite3.Row) -> str:
+    if row["status"] == "discontinued":
+        return "descontinuado, ofereça um sucessor equivalente"
+    if row["status"] == "coming_soon":
+        return "ainda não lançado, sem previsão de venda"
+    if row["stock_quantity"] == 0:
+        return "sem estoque no momento, ofereça alternativas semelhantes"
+    return "disponível"
+
+
 def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
     # A listing carries the short version of the payment terms and the details
     # carry the full breakdown. Leaving the terms out of the listing entirely
@@ -50,6 +60,7 @@ def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
         "in_stock": row["stock_quantity"] > 0,
         "stock_quantity": row["stock_quantity"],
         "status": row["status"],
+        "availability_note": _availability(row),
         "pix_price_brl": money["pix"]["total"],
         "max_installments": money["credit"]["max_installments"],
         "installment_brl": money["credit"]["installment_value"],
@@ -67,6 +78,39 @@ def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
 def search_products(query: str = "", category: str = "", min_price: float | None = None,
                     max_price: float | None = None, only_in_stock: bool = True,
                     limit: int = 5) -> dict:
+    results = _catalog_query(query, category, min_price, max_price, only_in_stock, limit)
+    if results or not only_in_stock:
+        payload = {"count": len(results), "products": results}
+        if not results:
+            payload["note"] = (
+                "nenhum produto do catálogo atende a esses filtros; não sugira itens "
+                "que não apareçam aqui"
+            )
+        return payload
+
+    # Nothing available does not mean nothing exists. Policy 7.3 asks for the
+    # difference: an item the store no longer has is announced as unavailable
+    # with an alternative, not denied as if it never existed.
+    unavailable = _catalog_query(query, category, min_price, max_price, False, limit)
+    if not unavailable:
+        return {
+            "count": 0,
+            "products": [],
+            "note": "esse produto não existe no catálogo da loja; não invente um "
+                    "equivalente, ofereça buscar outra coisa",
+        }
+    return {
+        "count": 0,
+        "products": [],
+        "unavailable": unavailable,
+        "note": "o produto existe no catálogo mas não está disponível para venda; "
+                "diga a situação e ofereça uma alternativa semelhante consultando "
+                "o catálogo de novo",
+    }
+
+
+def _catalog_query(query: str, category: str, min_price: float | None,
+                   max_price: float | None, only_in_stock: bool, limit: int) -> list[dict]:
     from .text import search_terms
 
     clauses, params = [], []
@@ -92,14 +136,7 @@ def search_products(query: str = "", category: str = "", min_price: float | None
             [*params, limit],
         ).fetchall()
 
-    results = [_product_row(row) for row in rows]
-    payload = {"count": len(results), "products": results}
-    if not results:
-        payload["note"] = (
-            "nenhum produto do catálogo atende a esses filtros; não sugira itens "
-            "que não apareçam aqui"
-        )
-    return payload
+    return [_product_row(row) for row in rows]
 
 
 def get_product(product_id: int) -> dict:
@@ -116,14 +153,6 @@ def get_product(product_id: int) -> dict:
         product["specs"] = json.loads(row["specs"]) if row["specs"] else {}
     except json.JSONDecodeError:
         product["specs"] = {}
-    if row["status"] == "discontinued":
-        product["availability_note"] = "produto descontinuado, ofereça um sucessor equivalente"
-    elif row["status"] == "coming_soon":
-        product["availability_note"] = "produto ainda não lançado, sem previsão de venda"
-    elif row["stock_quantity"] == 0:
-        product["availability_note"] = (
-            "sem estoque no momento, ofereça alternativas semelhantes"
-        )
     return product
 
 

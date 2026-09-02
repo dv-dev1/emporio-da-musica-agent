@@ -23,7 +23,7 @@ CONVERSATIONS = [
                  "de preço em um produto que está em promoção.",
         "turns": [
             "oi! quais violões vocês têm até 1000 reais?",
-            "e esse ohana ck-20, sai por quanto? consigo parcelar?",
+            "e o yamaha c40, dá pra parcelar? quanto fica cada parcela?",
         ],
     },
     {
@@ -61,10 +61,13 @@ CONVERSATIONS = [
         "file": "05-produto-indisponivel.md",
         "title": "Produto sem estoque e promoção vencida",
         "about": "O agente não confirma disponibilidade do que acabou, oferece "
-                 "alternativa do catálogo e não promete um desconto que expirou.",
+                 "alternativa do catálogo e não promete um desconto que expirou. "
+                 "Fecha com um ukulele que está de fato em promoção, para mostrar "
+                 "o desconto aparecendo junto do preço de tabela.",
         "turns": [
             "queria o Giannini GF-3D Dreadnought Sunburst, tem?",
             "vi que teve black friday nele, ainda vale aquele desconto?",
+            "e o ohana ck-20, tá com algum desconto?",
         ],
     },
 ]
