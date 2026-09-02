@@ -37,7 +37,7 @@ PYTHONPATH=src python -m emporio.cli --ask "que horas abre no sábado?"
 
 streamlit run app.py                                      # browser chat
 
-pytest                                                    # 119 tests, no API key
+pytest                                                    # 122 tests, no API key
 pytest -m spec                                            # only the policy clauses
 python scripts/spec_matrix.py                             # regenerates SPEC.md
 python scripts/validate.py                                # sweeps the data, no key
@@ -97,6 +97,17 @@ The five tools:
 | `get_order` | order status, tracking, and which return windows are still open |
 | `search_policies` | the relevant sections of the policy manual |
 | `store_info` | address, contacts, opening hours, whether it is open right now |
+
+`search_products` never answers an empty search with a bare "no". It says which
+kind of no it is, because a customer hears them as the same sentence and only one
+of them is ever true:
+
+| What is true | What the tool returns |
+|---|---|
+| In stock | the products |
+| In the catalogue, but sold out or discontinued | `unavailable`, so §7.3 can offer an alternative |
+| In the catalogue, but not at that price | `outside_price_range`, with the real price |
+| Never carried | the only case that says the store does not have it |
 
 ### Business rules in Python, not in the prompt
 
@@ -370,6 +381,28 @@ Streamlit, `$` opens LaTeX, so `R$ 439,20 (de R$ 549,00)` rendered as
 `R 439,20 (de R 549,00)` with the span between the two signs typeset as math.
 Every price in the browser was wrong while every price in the CLI was right. The
 screenshots above are from after the fix; taking them is what surfaced it.
+
+And *disbelieving an answer* caught the two that mattered most. Asked how many
+installments for *"um violão de 599 reais"*, the agent replied that the store had
+no violão at R$599,00 — it has the Yamaha C40 at R$599,90. Every test passed and
+so did the data sweep, because both check the question they were written to ask.
+Two defects sat behind that sentence:
+
+- **A category was a search term, not a filter.** Query and category were folded
+  into one list of words matched against name, description and category together,
+  so a barítono ukulele whose description calls it *"uma ponte entre o ukulele e
+  o violão"* came back as a violão — at R$599,00, which is how the wrong
+  instrument's price ended up under the C40's name.
+- **An empty price range claimed the catalogue was empty.** The tool already told
+  a product the store never carried apart from one merely out of stock, as §7.3
+  asks. It did not tell either apart from one that exists outside the price
+  asked about, so a price filter emptying a search produced *the store does not
+  carry this* — a different, and false, claim.
+
+Underneath sits a smaller idea: **the customer does not know the price either.**
+They said 599 and the catalogue says 599,90 — they were recalling a figure, not
+setting one. A single value now orders results by distance from it instead of
+filtering to it; a budget they did impose, *"até R$1000"*, still filters.
 
 Each of those is now a test and its own commit.
 

@@ -162,6 +162,34 @@ def test_a_product_the_store_never_had_is_still_denied():
     assert found["note"].startswith("esse produto não existe")
 
 
+@pytest.mark.spec("7.1")
+def test_every_price_arrives_already_written_out():
+    """The model copies a string rather than transcribing a float.
+
+    Handed 599.9 it wrote "R$ 599,00" — near enough to the customer's own "599
+    reais" to read as right, and wrong by ninety centavos.
+    """
+    product = tools.get_product(81)
+    assert product["diga_assim"]["preco"] == "R$ 599,90"
+    assert product["diga_assim"]["parcelamento"] == "6x de R$ 99,98"
+
+    promotional = tools.get_product(121)
+    assert promotional["diga_assim"]["preco"] == "R$ 439,20"
+    assert promotional["diga_assim"]["preco_de_tabela"] == "R$ 549,00"
+    assert promotional["diga_assim"]["pix"] == "R$ 439,20"
+
+
+def test_thousands_are_written_the_brazilian_way():
+    assert tools.get_product(137)["diga_assim"]["preco"] == "R$ 11.445,00"
+
+
+def test_the_written_price_always_matches_the_number_beside_it():
+    for product in tools.search_products(only_in_stock=False, limit=8)["products"]:
+        expected = f"{product['price_now_brl']:,.2f}".replace(",", "_")
+        expected = expected.replace(".", ",").replace("_", ".")
+        assert product["diga_assim"]["preco"] == f"R$ {expected}", product["name"]
+
+
 def test_a_category_never_returns_another_category():
     """A category filters its column, it is not one more word to search for.
 

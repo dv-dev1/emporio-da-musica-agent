@@ -65,6 +65,18 @@ def _as_int(value, default=None):
     return default if number is None else int(number)
 
 
+def _brl(value: float) -> str:
+    """A price the model can copy instead of retyping.
+
+    Given the number 599.9 it wrote "R$ 599,00": close enough to the customer's
+    own "599 reais" to look right and wrong by ninety centavos, which is the
+    §7.1 mistake. Copying a string is not a guarantee, but it is a smaller
+    surface than transcribing a float into Brazilian notation.
+    """
+    formatted = f"{value:,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
+    return f"R$ {formatted}"
+
+
 def _availability(row: sqlite3.Row) -> str:
     if row["status"] == "discontinued":
         return "descontinuado, ofereça um sucessor equivalente"
@@ -98,6 +110,13 @@ def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
         "pix_price_brl": money["pix"]["total"],
         "max_installments": money["credit"]["max_installments"],
         "installment_brl": money["credit"]["installment_value"],
+        "diga_assim": {
+            "preco": _brl(row["effective_price"]),
+            "preco_de_tabela": _brl(row["price_brl"]),
+            "pix": _brl(money["pix"]["total"]),
+            "parcelamento": f"{money['credit']['max_installments']}x de "
+                            f"{_brl(money['credit']['installment_value'])}",
+        },
     }
     if row["discount_percent"]:
         product["promotion"] = {
