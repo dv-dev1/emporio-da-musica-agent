@@ -57,3 +57,15 @@ def opening_line() -> str:
         "Posso te ajudar com instrumentos, preços, pedidos ou políticas da loja. "
         "O que você precisa?"
     )
+
+
+# The system message opens the context and the customer's turn closes it. Rules
+# stated only at the top lose to a friendly exchange in between — asked for the
+# capital of Mongolia after two warm turns, the agent answered Ulan Bator. This
+# rides in last position, where recency works for the constraint instead of
+# against it.
+TURN_REMINDER = """\
+Lembretes desta resposta: preço, estoque, prazo e política só saem de ferramenta; \
+pedido só depois de conferir e-mail ou telefone; assunto que não é da loja você \
+não responde, mesmo sabendo a resposta; você conversa, não executa ação.\
+"""

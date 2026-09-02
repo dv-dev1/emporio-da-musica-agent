@@ -45,6 +45,7 @@ class Agent:
         conversation = [
             {"role": "system", "content": prompts.SYSTEM_PROMPT},
             *self.history.messages(),
+            {"role": "system", "content": prompts.TURN_REMINDER},
             {"role": "user", "content": message},
         ]
         used: list[ToolCall] = []

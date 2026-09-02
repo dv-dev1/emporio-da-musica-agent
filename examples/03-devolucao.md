@@ -9,23 +9,20 @@ Caso não trivial. Exige o pedido (data de recebimento) e o manual (prazo de 7 d
 
 **Cliente:** me arrependi da compra, quero devolver o pedido 4
 
-**Téo:** Oi! Para a gente abrir a solicitação de devolução do pedido 4, preciso confirmar seu cadastro. Me passa o e‑mail ou o telefone que está associado ao pedido? 😊
+**Téo:** Oi! Para a gente abrir a solicitação de devolução do pedido 4, preciso confirmar seu cadastro. Pode me passar o e‑mail ou o telefone que usou na compra?
 
 **Cliente:** lucas.mendes@jmail.com
 
 <sub>consultou `get_order`</sub>
 
-**Téo:** Lucas, o pedido 4 já foi entregue há mais de 90 dias (recebido em 22/12/2025). Nesse prazo o direito de arrependimento já expirou e a troca por preferência também não está mais disponível.
+**Téo:** Lucas, o pedido 4 já foi entregue há mais de 90 dias (recebido em 22/12/2025). Nesse prazo o direito de arrependimento já expirou e a troca por preferência também não está mais disponível. Você ainda pode acionar a garantia do fabricante, que a gente pode intermediar, ou avaliar outras opções.
 
-Se ainda quiser devolver, a única alternativa é acionar a garantia do fabricante (a loja pode intermediar, mas depende do que a marca cobre). Quer que eu abra a solicitação de intermediação ou tem outra dúvida?
+Quer que eu abra um contato com a equipe de garantia ou tem outra dúvida?
 
 **Cliente:** e se tiver defeito de fábrica, muda alguma coisa?
 
 <sub>consultou `search_policies`</sub>
 
-**Téo:** Se o produto tiver defeito de fábrica, a gente tem duas opções:
+**Téo:** Exato! Se o seu instrumento tem defeito de fábrica, a garantia legal de 90 dias cobre a troca. Como o pedido já passou desse prazo, você pode acionar a garantia do fabricante. A gente pode intermediar o contato pra você.
 
-1. **Até 30 dias** da compra: a Empório troca o item sem custo.  
-2. **Depois de 30 dias** (como no seu caso, que já passou o prazo de arrependimento) você pode acionar a **garantia legal de 90 dias** ou a garantia do fabricante. A loja pode intermediar o processo, mas a aprovação depende da marca.
-
-Então, se o defeito for de fabricação, podemos abrir a solicitação de garantia para você. Quer que eu siga com isso? 😊
+Quer que eu abra esse pedido de garantia ou tem mais alguma coisa?
