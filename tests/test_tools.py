@@ -118,6 +118,27 @@ def test_open_right_now_follows_the_pinned_date(monkeypatch):
     assert tools.store_info()["right_now"]["open"] in {True, False}
 
 
+def test_a_category_never_returns_another_category():
+    """A category filters its column, it is not one more word to search for.
+
+    The Kala KA-B is a barítono ukulele whose description calls it "uma ponte
+    entre o ukulele e o violão". While the category was folded into the free
+    text, asking for violões offered it as one.
+    """
+    for category in ["Violões", "Ukuleles", "Guitarras", "Baixos",
+                     "Teclados e Pianos", "Baterias e Percussão"]:
+        found = tools.search_products(category=category, limit=8, only_in_stock=False)
+        strays = [product["name"] for product in found["products"]
+                  if product["category"] != category]
+        assert not strays, f"{category} trouxe {strays}"
+
+
+def test_a_category_is_read_however_the_model_spells_it():
+    counts = {tools.search_products(category=spelling, limit=8)["count"]
+              for spelling in ["Violões", "violões", "violao", "Violão", "VIOLAO"]}
+    assert len(counts) == 1, f"grafias divergiram: {counts}"
+
+
 def test_unknown_tool_does_not_raise():
     assert "error" in tools.call("consultar_horoscopo", {})
 

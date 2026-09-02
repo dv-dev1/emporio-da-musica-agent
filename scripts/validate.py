@@ -89,6 +89,14 @@ def check_catalogue_tool(rows: list[sqlite3.Row]) -> list[str]:
                 found.get("products", []) + found.get("unavailable", [])}
         if row["product_id"] not in seen:
             failures.append(f"produto {row['product_id']} não é achado pelo próprio nome")
+
+    categories = {row["category"] for row in rows if row["category"]}
+    for category in sorted(categories):
+        found = tools.search_products(category=category, limit=8, only_in_stock=False)
+        for product in found.get("products", []):
+            if product["category"] != category:
+                failures.append(f"categoria {category}: veio {product['name']} "
+                                f"({product['category']})")
     return failures
 
 

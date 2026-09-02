@@ -152,12 +152,21 @@ def search_products(query: str = "", category: str = "", min_price: float | None
 
 def _catalog_query(query: str, category: str, min_price: float | None,
                    max_price: float | None, only_in_stock: bool, limit: int) -> list[dict]:
+    """Free text searches the whole row; a category only ever filters its column.
+
+    Folding the two together made the category one more word to look for in the
+    description, and a barítono ukulele whose description calls it "uma ponte
+    entre o ukulele e o violão" came back as a violão.
+    """
     from .text import search_terms
 
     clauses, params = [], []
-    for term in search_terms(f"{query} {category}"):
+    for term in search_terms(query):
         clauses.append("searchable(name || ' ' || COALESCE(description,'') || ' ' || "
                        "COALESCE(category,'')) LIKE ?")
+        params.append(f"%{term}%")
+    for term in search_terms(category):
+        clauses.append("searchable(COALESCE(category,'')) LIKE ?")
         params.append(f"%{term}%")
     if min_price is not None:
         clauses.append("effective_price >= ?")
