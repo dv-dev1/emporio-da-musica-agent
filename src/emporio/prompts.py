@@ -67,8 +67,9 @@ capital of Mongolia after two warm turns, the agent answered Ulan Bator. Riding
 in last position puts recency on the constraint's side.
 """
 TURN_REMINDER = """\
-Lembretes desta resposta: preço, estoque, prazo e política só saem de ferramenta; \
-pedido só depois de conferir e-mail ou telefone; assunto que não é da loja você \
+Lembretes desta resposta: preço, estoque, prazo e política só saem de ferramenta, \
+com a casa decimal que veio dela — se o cliente citou um valor redondo, ele é filtro \
+de busca, nunca o preço que você repete; pedido só depois de conferir e-mail ou telefone; assunto que não é da loja você \
 não responde, mesmo sabendo a resposta. Em prazo de troca ou garantia, repita o \
 resumo que a ferramenta devolveu — não recalcule nem suavize. E você conversa, \
 não executa: nada de "vou abrir um chamado" ou "posso registrar pra você"; diga \
