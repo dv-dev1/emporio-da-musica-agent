@@ -1,7 +1,13 @@
-"""Loads the CSV snapshot into a local SQLite database."""
+"""Loads the CSV snapshot into a local SQLite database.
+
+The catalog view resolves each product's live promotion once. A product may in
+theory carry more than one, and policy 6.2 forbids stacking them, so the best
+single discount wins and nothing downstream has to remember that rule.
+"""
 
 import csv
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
 
 from . import config
@@ -73,8 +79,6 @@ CREATE INDEX idx_items_order ON order_items(order_id);
 CREATE INDEX idx_promo_product ON promotions(product_id, is_active);
 """
 
-# A product may in theory carry more than one live promotion. Policy 6.2 forbids
-# stacking, so the best single discount wins.
 CATALOG_VIEW = """
 CREATE VIEW catalog AS
 SELECT
@@ -165,6 +169,22 @@ def build(db_path: Path | None = None, data_dir: Path | None = None) -> Path:
     finally:
         connection.close()
     return db_path
+
+
+@contextmanager
+def session(db_path: Path | None = None):
+    """A connection that commits on success and always closes.
+
+    `with connection:` alone only manages the transaction; the handle stays
+    open. One leak per tool call is invisible in a script and fatal in a process
+    that runs for a day.
+    """
+    connection = connect(db_path)
+    try:
+        with connection:
+            yield connection
+    finally:
+        connection.close()
 
 
 def connect(db_path: Path | None = None) -> sqlite3.Connection:

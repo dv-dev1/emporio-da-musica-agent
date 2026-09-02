@@ -6,6 +6,7 @@ one later is exactly the mistake the policy manual warns about.
 """
 
 import sqlite3
+from contextlib import closing, contextmanager
 from datetime import datetime
 from pathlib import Path
 
@@ -33,10 +34,12 @@ class History:
         with self._connect() as connection:
             connection.executescript(SCHEMA)
 
-    def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self._db_path)
-        connection.row_factory = sqlite3.Row
-        return connection
+    @contextmanager
+    def _connect(self):
+        with closing(sqlite3.connect(self._db_path)) as connection:
+            connection.row_factory = sqlite3.Row
+            with connection:
+                yield connection
 
     def append(self, role: str, content: str) -> None:
         with self._connect() as connection:

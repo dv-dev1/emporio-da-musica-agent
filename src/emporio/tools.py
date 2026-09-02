@@ -7,6 +7,7 @@ word the answer; it never gets to invent a price, a stock level or a deadline.
 import json
 import re
 import sqlite3
+from contextlib import contextmanager
 from datetime import date, datetime
 
 from . import config, etl, policies, rules
@@ -14,10 +15,11 @@ from . import config, etl, policies, rules
 MAX_RESULTS = 8
 
 
-def _connection() -> sqlite3.Connection:
-    connection = etl.connect()
-    connection.create_function("searchable", 1, _searchable)
-    return connection
+@contextmanager
+def _session():
+    with etl.session() as connection:
+        connection.create_function("searchable", 1, _searchable)
+        yield connection
 
 
 def _searchable(text: str) -> str:
@@ -34,6 +36,35 @@ def _digits(value: str) -> str:
     return re.sub(r"\D", "", value or "")
 
 
+def _as_bool(value, default: bool = True) -> bool:
+    """Coerces what a model calls a boolean into one.
+
+    JSON schemas do not bind the model: it sends the string "false" often enough
+    that taking it at face value would silently leave a filter on.
+    """
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.strip().lower() not in {"false", "no", "nao", "não", "0", ""}
+    if value is None:
+        return default
+    return bool(value)
+
+
+def _as_number(value, default=None):
+    if value is None or value == "":
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _as_int(value, default=None):
+    number = _as_number(value, None)
+    return default if number is None else int(number)
+
+
 def _availability(row: sqlite3.Row) -> str:
     if row["status"] == "discontinued":
         return "descontinuado, ofereça um sucessor equivalente"
@@ -45,10 +76,13 @@ def _availability(row: sqlite3.Row) -> str:
 
 
 def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
-    # A listing carries the short version of the payment terms and the details
-    # carry the full breakdown. Leaving the terms out of the listing entirely
-    # invites the model to recite the policy text and work the installments out
-    # itself, which is how a R$599 guitar gets advertised at twelve payments.
+    """One catalogue row, with the payment terms already worked out.
+
+    A listing carries the short version and the details carry the full
+    breakdown. Leaving the terms out of the listing entirely invites the model
+    to recite the manual's 12x ceiling and do the arithmetic itself, which is
+    how a R$599 guitar ends up advertised at twelve installments.
+    """
     money = rules.payment_options(row["price_brl"], row["effective_price"],
                                   row["discount_percent"])
     product = {
@@ -78,6 +112,16 @@ def _product_row(row: sqlite3.Row, with_payment: bool = False) -> dict:
 def search_products(query: str = "", category: str = "", min_price: float | None = None,
                     max_price: float | None = None, only_in_stock: bool = True,
                     limit: int = 5) -> dict:
+    """Searches the catalogue, telling absence and unavailability apart.
+
+    Policy 7.3 asks for that difference: an item the store no longer has is
+    announced as unavailable with an alternative offered, not denied as if it
+    had never existed.
+    """
+    only_in_stock = _as_bool(only_in_stock)
+    min_price = _as_number(min_price)
+    max_price = _as_number(max_price)
+    limit = _as_int(limit, 5) or 5
     results = _catalog_query(query, category, min_price, max_price, only_in_stock, limit)
     if results or not only_in_stock:
         payload = {"count": len(results), "products": results}
@@ -88,9 +132,6 @@ def search_products(query: str = "", category: str = "", min_price: float | None
             )
         return payload
 
-    # Nothing available does not mean nothing exists. Policy 7.3 asks for the
-    # difference: an item the store no longer has is announced as unavailable
-    # with an alternative, not denied as if it never existed.
     unavailable = _catalog_query(query, category, min_price, max_price, False, limit)
     if not unavailable:
         return {
@@ -128,9 +169,9 @@ def _catalog_query(query: str, category: str, min_price: float | None,
         clauses.append("stock_quantity > 0 AND status = 'active'")
 
     where = " AND ".join(clauses) or "1 = 1"
-    limit = max(1, min(int(limit or 5), MAX_RESULTS))
+    limit = max(1, min(limit, MAX_RESULTS))
 
-    with _connection() as connection:
+    with _session() as connection:
         rows = connection.execute(
             f"SELECT * FROM catalog WHERE {where} ORDER BY effective_price LIMIT ?",
             [*params, limit],
@@ -140,7 +181,10 @@ def _catalog_query(query: str, category: str, min_price: float | None,
 
 
 def get_product(product_id: int) -> dict:
-    with _connection() as connection:
+    product_id = _as_int(product_id)
+    if product_id is None:
+        return {"error": "product_id inválido"}
+    with _session() as connection:
         row = connection.execute(
             "SELECT * FROM catalog WHERE product_id = ?", [product_id]
         ).fetchone()
@@ -162,7 +206,10 @@ def get_order(order_id: int, customer_contact: str) -> dict:
     The manual treats customer data as protected (9), and an order id alone is
     guessable, so the caller has to bring the phone or the e-mail on the order.
     """
-    with _connection() as connection:
+    order_id = _as_int(order_id)
+    if order_id is None:
+        return {"error": "order_id inválido"}
+    with _session() as connection:
         row = connection.execute(
             """
             SELECT o.*, c.name AS customer_name, c.email, c.phone, c.city
@@ -358,6 +405,7 @@ SCHEMAS = [
 
 
 def call(name: str, arguments: dict) -> dict:
+    """Runs one tool by name. A broken tool answers, it does not raise."""
     function = REGISTRY.get(name)
     if function is None:
         return {"error": f"ferramenta desconhecida: {name}"}
@@ -365,5 +413,5 @@ def call(name: str, arguments: dict) -> dict:
         return function(**arguments)
     except TypeError as error:
         return {"error": f"argumentos inválidos para {name}: {error}"}
-    except Exception as error:  # a broken tool should not kill the conversation
+    except Exception as error:
         return {"error": f"falha ao executar {name}: {error}"}
