@@ -404,6 +404,18 @@ They said 599 and the catalogue says 599,90 — they were recalling a figure, no
 setting one. A single value now orders results by distance from it instead of
 filtering to it; a budget they did impose, *"até R$1000"*, still filters.
 
+One of them survived its first fix, and that is worth recording. With retrieval
+corrected the agent found the right guitar and still wrote *"o violão de R$599,00
+(Yamaha C40 Nylon Natural)"*: the tool returned `599.9` and the model transcribed
+the float into Brazilian notation, landing on the customer's own round number. I
+had already tried to stop that with a line in the turn reminder, and the line did
+not hold — this project's own argument turned back on me. So the formatting left
+the model too: every product now carries `diga_assim` with the price, the list
+price, the PIX price and the installment already written out to copy. Thirteen
+runs across three phrasings are correct where the same question was wrong before.
+That is a smaller surface, not a proof — copying can still fail, and no test can
+assert what a model will write.
+
 Each of those is now a test and its own commit.
 
 **Where I deliberately did not use it.** The business rules in `rules.py` I
