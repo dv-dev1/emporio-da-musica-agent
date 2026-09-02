@@ -13,6 +13,11 @@ from emporio.agent import Agent, MissingApiKey  # noqa: E402
 st.set_page_config(page_title="Empório da Música", page_icon="🎸")
 
 
+def as_markdown(text: str) -> str:
+    """Streamlit reads `$...$` as LaTeX, which swallows the R$ of every price."""
+    return text.replace("$", r"\$")
+
+
 @st.cache_resource
 def start(session_id: str) -> Agent:
     etl.connect().close()
@@ -37,16 +42,16 @@ if st.sidebar.button("Limpar conversa"):
 
 history = agent.history.messages()
 if not history:
-    st.chat_message("assistant").write(prompts.opening_line())
+    st.chat_message("assistant").write(as_markdown(prompts.opening_line()))
 for message in history:
-    st.chat_message(message["role"]).write(message["content"])
+    st.chat_message(message["role"]).write(as_markdown(message["content"]))
 
 if question := st.chat_input("Escreva sua mensagem"):
-    st.chat_message("user").write(question)
+    st.chat_message("user").write(as_markdown(question))
     with st.chat_message("assistant"):
         with st.spinner("consultando..."):
             reply = agent.reply(question)
-        st.write(reply.text)
+        st.write(as_markdown(reply.text))
         if show_tools and reply.tool_calls:
             with st.expander(f"{len(reply.tool_calls)} consulta(s)"):
                 for call in reply.tool_calls:
