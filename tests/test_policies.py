@@ -25,9 +25,6 @@ def test_orphan_headings_keep_their_parent(index):
     assert shipping.parent == "5. Política de Frete e Entregas"
 
 
-# The agent always receives three chunks, so that is what the test asserts on.
-# Demanding the top spot would be testing a tie break: "cordas e palhetas" is
-# genuinely ambiguous between the catalogue scope and the warranty exclusions.
 @pytest.mark.parametrize(
     "question, expected_section",
     [
@@ -41,6 +38,11 @@ def test_orphan_headings_keep_their_parent(index):
     ],
 )
 def test_questions_land_on_the_right_section(index, question, expected_section):
+    """The agent always receives three chunks, so that is the assertion.
+
+    Demanding the top spot would be testing a tie break: "cordas e palhetas" is
+    genuinely ambiguous between the catalogue scope and the warranty exclusions.
+    """
     found = [hit["section"] for hit in index.search(question, limit=3)]
     assert any(section.startswith(expected_section) for section in found), found
 

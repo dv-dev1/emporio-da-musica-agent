@@ -32,8 +32,10 @@ def test_a_rate_limit_is_worth_retrying():
 
 
 def test_a_malformed_tool_call_is_worth_retrying():
-    # gpt-oss occasionally emits its "commentary" channel as a tool call; Groq
-    # rejects it with a 400 that the next sample will not repeat.
+    """gpt-oss emits its commentary channel as a tool call now and then.
+
+    Groq rejects it with a 400 the next sample will not repeat.
+    """
     assert _is_transient(_Error(400, "tool_use_failed"))
 
 
